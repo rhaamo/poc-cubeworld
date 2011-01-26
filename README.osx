@@ -1,0 +1,9 @@
+You need the OgreSDK and OIS framework, also install libnoise with the CVS version !
+
+Pkg-config stuff are required for libnoise !
+
+After build you need to run "../do_ugly_osx_bundle.sh" FROM THE 'build' directory !
+
+This will copy resources.cfg and plugins.cfg and also copy stuff to the bundle to ... hum ... works
+
+This is very ugly but i'm very lazy to fix it for the moment ... eh, that's not a pre-alpha! ;)

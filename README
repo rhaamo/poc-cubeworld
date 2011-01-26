@@ -1,0 +1,16 @@
+CubeWorld is an attempt to make a MineCraft-like world using Ogre 3D
+
+Requirements:
+
+ - Ogre3D
+ - OIS
+ - libnoise
+
+Global instructions:
+
+Edit the CMakeLists.txt and adapt:
+
+ - CMAKE_INSTALL_PREFIX line 43
+ - OGRE_SOURCE_DIR line 48 (path to the SDK)
+
+At this moment please see the README.<your OS>
