@@ -11,7 +11,7 @@ Global instructions:
 Edit the CMakeLists.txt and adapt (REQUIRED !):
 
  - CMAKE_INSTALL_PREFIX line 43
- - OGRE_SOURCE_DIR line 48 (path to the SDK)
+ - Two blocks starting line 47, adapt the rights paths for your OS
 
 At this moment please see the README.<your OS>
 

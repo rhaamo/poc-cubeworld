@@ -21,7 +21,7 @@ cp "${OGRE_SDK_LIBS_PATH}/Plugin_PCZSceneManager.dylib" "OGRETutorialFramework.a
 cp "${OGRE_SDK_LIBS_PATH}/Plugin_ParticleFX.dylib" "OGRETutorialFramework.app/Contents/Plugins"
 cp "${OGRE_SDK_LIBS_PATH}/RenderSystem_GL.dylib" "OGRETutorialFramework.app/Contents/Plugins"
 
-cp ../resources/osx/*.cfg .
+cp ../resources/*.cfg .
 cp -r ../resources/OGRE .
 
 echo '=== done :-)'

@@ -32,7 +32,7 @@ TutorialApplication::TutorialApplication(void)
 
 	m_BlockLight = new blocklight_t[WORLD_SIZE3 + 16000];
 	memset(m_BlockLight, 255, sizeof(blocklight_t) * WORLD_SIZE3);
-	initWorldBlocksLight();
+	//initWorldBlocksLight(); // WTF FIXME Crashes on linux ??! (not on OSX)
 }
 //-------------------------------------------------------------------------------------
 TutorialApplication::~TutorialApplication(void)

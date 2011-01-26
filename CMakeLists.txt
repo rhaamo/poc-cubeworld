@@ -44,16 +44,28 @@ set(CMAKE_INSTALL_PREFIX "/Users/rhaamo/cubeworld/build/bin")
 
 project(${OGRE_PROJECT_NAME})
 
-# Include necessary submodules
-set(OGRE_SOURCE_DIR "/Users/rhaamo/src/OgreSDK")
-set(CMAKE_MODULE_PATH
-  "${OGRE_SOURCE_DIR}/CMake"
-  "${OGRE_SOURCE_DIR}/CMake/Utils"
-  "${OGRE_SOURCE_DIR}/CMake/Packages"
-)
-set(OGRE_SAMPLES_INCLUDEPATH
-  "${OGRE_SOURCE_DIR}/Samples/Common/include"
-)
+if (APPLE)
+    # Include necessary submodules
+    set(OGRE_SOURCE_DIR "/Users/rhaamo/src/OgreSDK")
+    set(CMAKE_MODULE_PATH
+	"${OGRE_SOURCE_DIR}/CMake"
+	"${OGRE_SOURCE_DIR}/CMake/Utils"
+	"${OGRE_SOURCE_DIR}/CMake/Packages"
+	)
+    set(OGRE_SAMPLES_INCLUDEPATH "${OGRE_SOURCE_DIR}/Samples/Common/include" )
+endif (APPLE)
+
+if(LINUX)
+    # Include necessary submodules
+    set(OGRE_SOURCE_DIR "/usr/lib/OGRE/")
+    set(CMAKE_MODULE_PATH
+	"${OGRE_SOURCE_DIR}/cmake"
+	"${OGRE_SOURCE_DIR}/cmake/Utils"
+	"${OGRE_SOURCE_DIR}/cmake/Packages"
+	)
+    set(OGRE_SAMPLES_INCLUDEPATH "${OGRE_SOURCE_DIR}/Samples/Common/include" )
+endif (LINUX)
+
 include(CMakeDependentOption)
 include(CheckCXXCompilerFlag)
 include(MacroLogFeature)
