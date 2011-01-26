@@ -2,7 +2,7 @@ CubeWorld is an attempt to make a MineCraft-like world using Ogre 3D
 
 Requirements:
 
- - Ogre3D
+ - Ogre3D (and SDK on OSX)
  - OIS
  - libnoise
 
