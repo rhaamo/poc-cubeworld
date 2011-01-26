@@ -4,6 +4,11 @@ Pkg-config stuff are required for libnoise !
 
 After build you need to run "../do_ugly_osx_bundle.sh" FROM THE 'build' directory !
 
+AND AND AND EDIT THE SCRIPT TO ADAPT PATHS ON THE TOP !
+
+Also, run the app like "./OGRETutorialFramework.app/Contents/MacOS/OGRETutorialFramework" FROM the 'build' directory
+Because resources are loaded using relative paths
+
 This will copy resources.cfg and plugins.cfg and also copy stuff to the bundle to ... hum ... works
 
 This is very ugly but i'm very lazy to fix it for the moment ... eh, that's not a pre-alpha! ;)

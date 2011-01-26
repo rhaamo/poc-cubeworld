@@ -8,9 +8,11 @@ Requirements:
 
 Global instructions:
 
-Edit the CMakeLists.txt and adapt:
+Edit the CMakeLists.txt and adapt (REQUIRED !):
 
  - CMAKE_INSTALL_PREFIX line 43
  - OGRE_SOURCE_DIR line 48 (path to the SDK)
 
 At this moment please see the README.<your OS>
+
+The `resources/OGRE' need some file sorting for useless/unused files...
