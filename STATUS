@@ -1,0 +1,11 @@
+This project is currently frozed/abandonned.
+
+I've started with http://dave.uesp.net/wiki/Block_Land but a lot of code is missing ...
+
+I'm missing the whole world terrain generation (what the fuck is infland or CMap ???)
+  -> Layers and differents block types depends on world terrain gen
+    -> caves depends on layers
+      -> Better lightning depends on caves to see the result
+    -> Water depends on layers
+
+So, finally because i can't guess what all this code is/are/do i froze and stop this projet.
