@@ -4,8 +4,10 @@ Filename:    CubeWorld.cpp
 -----------------------------------------------------------------------------
 */
 
-// Linux Compat for wind0ws
+#if defined(__Linux__) || defined(__APPLE__)
+/* Youpi wind0ws compat lol */
 typedef char TCHAR;
+#endif
 
 #include "erosion.h"
 #include "CubeWorld.h"
@@ -57,39 +59,6 @@ void CubeWorld::initWorldBlocksLight()
 			}
 	    }
 }
-
-
-
-void CubeWorld::initWorldBlocksSphere(void)
-{
-	for (int z = 0; z < WORLD_SIZE; ++z)
-	    {
-		    for (int y = 0; y < WORLD_SIZE; ++y)
-			{
-				for (int x = 0; x < WORLD_SIZE; ++x)
-				    {
-					    if (sqrt((float) (x-WORLD_SIZE/2)*(x-WORLD_SIZE/2) + (y-WORLD_SIZE/2)*(y-WORLD_SIZE/2) + (z-WORLD_SIZE/2)*(z-WORLD_SIZE/2)) < WORLD_SIZE/2) GetBlock(x,y,z) = 1;
-				    }
-			}
-	    }
-}
-
-void CubeWorld::initWorldBlocksRandom(const int Divisor)
-{
-	srand(12345); // To keep it consistent between runs
-
-	for (int z = 0; z < WORLD_SIZE; ++z)
-	    {
-		    for (int y = 0; y < WORLD_SIZE; ++y)
-			{
-				for (int x = 0; x < WORLD_SIZE; ++x)
-				    {
-					    GetBlock(x,y,z) = rand() % Divisor;
-				    }
-			}
-	    }
-}
-
 
 Ogre::ManualObject* CubeWorld::createCubeMesh (Ogre::String name, Ogre::String matName)
 {
@@ -441,17 +410,6 @@ void CubeWorld::createChunkWater (const int StartX, const int StartY, const int 
 	    }
 }
 
-
-
-void CubeWorld::createSolidTexture(const TCHAR* pName)
-{
-	Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create("BoxColor", "General", true);
-	Ogre::Technique* tech = mat->getTechnique(0);
-	Ogre::Pass* pass = tech->getPass(0);
-	Ogre::TextureUnitState* tex = pass->createTextureUnitState();
-	tex->setColourOperationEx(Ogre::LBX_MODULATE, Ogre::LBS_MANUAL, Ogre::LBS_CURRENT, Ogre::ColourValue(0, 0.5, 0));
-}
-
 void CubeWorld::createTexture (const TCHAR* pName, const TCHAR* pImageFilename)
 {
 	std::cerr << "*** Creating texture " << pImageFilename << std::endl;
@@ -603,16 +561,6 @@ void CubeWorld::initWorldBlocksLand(void)
 
 void CubeWorld::createWorldChunks (void)
 {
-	//std::vector<int> VertexArray;
-	//Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create("BoxColor", "General", true );
-	// Ogre::Technique* tech = mat->getTechnique(0);
-	// Ogre::Pass* pass = tech->getPass(0);
-	// Ogre::TextureUnitState* tex = pass->createTextureUnitState();
-	// tex->setColourOperationEx(Ogre::LBX_MODULATE, Ogre::LBS_MANUAL, Ogre::LBS_CURRENT, Ogre::ColourValue(0, 0.5, 0));
-
-	//Ogre::ManualObject* MeshChunk = new Ogre::ManualObject("MeshManChunk");
-	//MeshChunk->begin("BoxColor");
-
 	createTexture("BoxColor", "terrain-grass.png");
 	createWaterTexture("WaterTest");
 
@@ -629,45 +577,6 @@ void CubeWorld::createWorldChunks (void)
 	}
 
 }
-
-//-------------------------------------------------------------------------------------
-void CubeWorld::displaySimpleWorld(void)
-{
-	// Create a basic green color texture
-	Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create("BoxColor", "General", true);
-	Ogre::Technique* tech = mat->getTechnique(0);
-	Ogre::Pass* pass = tech->getPass(0);
-	Ogre::TextureUnitState* tex = pass->createTextureUnitState();
-	tex->setColourOperationEx(Ogre::LBX_MODULATE, Ogre::LBS_MANUAL, Ogre::LBS_CURRENT, Ogre::ColourValue(0, 0.5, 0));
-
-	// Create the one box and the supporting class objects
-	Ogre::ManualObject* testBox = createCubeMesh("TestBox1", "BoxColor");
-	Ogre::SceneNode* headNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
-	Ogre::MeshPtr Mesh = testBox->convertToMesh("TestBox2");
-	Ogre::StaticGeometry* pGeom = new Ogre::StaticGeometry(mSceneMgr, "Boxes");
-	Ogre::Entity* pEnt = mSceneMgr->createEntity("TestBox2");
-
-	pGeom->setRegionDimensions(Ogre::Vector3(300, 300, 300));
-
-	// Create out solid block world
-	for (int z = 0; z < 10; ++z)
-	    {
-		    for (int y = 0; y < 256; ++ y)
-			{
-				for (int x = 0; x < 256; ++x)
-				    {
-					    pGeom->addEntity(pEnt, Ogre::Vector3(x,y,z));
-				    }
-			}
-	    }
-
-	pGeom->build();
-
-	mSceneMgr->setAmbientLight(Ogre::ColourValue(0.02, 0.02, 0.02));
-	Ogre::Light* l = mSceneMgr->createLight("MainLight");
-	l->setPosition(20, 80, 50);
-}
-
 
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32

@@ -87,8 +87,6 @@ private:
 	};
 
 	// Used for filling our block world
-	void initWorldBlocksRandom(const int Divisor);
-	void initWorldBlocksSphere(void);
 	void initWorldBlocksLand(void);
 	void initWorldBlocksLayers(void);
 	void initWorldBlocksLight();
@@ -98,8 +96,6 @@ private:
 
 	//infland::CLandscape m_Landscape;
 
-	// Display the world using our original "naive" method
-	void displaySimpleWorld(void);
 protected:
     virtual void createScene(void);
 };
