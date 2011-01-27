@@ -1,17 +1,6 @@
 /*
 -----------------------------------------------------------------------------
-Filename:    TutorialApplication.cpp
------------------------------------------------------------------------------
-
-This source file is part of the
-   ___                 __    __ _ _    _
-  /___\__ _ _ __ ___  / / /\ \ (_) | _(_)
- //  // _` | '__/ _ \ \ \/  \/ / | |/ / |
-/ \_// (_| | | |  __/  \  /\  /| |   <| |
-\___/ \__, |_|  \___|   \/  \/ |_|_|\_\_|
-      |___/
-      Tutorial Framework
-      http://www.ogre3d.org/tikiwiki/
+Filename:    CubeWorld.cpp
 -----------------------------------------------------------------------------
 */
 
@@ -19,10 +8,10 @@ This source file is part of the
 typedef char TCHAR;
 
 #include "erosion.h"
-#include "TutorialApplication.h"
+#include "CubeWorld.h"
 
 //-------------------------------------------------------------------------------------
-TutorialApplication::TutorialApplication(void)
+CubeWorld::CubeWorld(void)
 {
 	m_Blocks = new block_t[WORLD_SIZE * WORLD_SIZE * WORLD_SIZE * 16000];
 	memset(m_Blocks, 0, sizeof(block_t) * WORLD_SIZE * WORLD_SIZE * WORLD_SIZE);
@@ -35,13 +24,13 @@ TutorialApplication::TutorialApplication(void)
 	//initWorldBlocksLight(); // WTF FIXME Crashes on linux ??! (not on OSX)
 }
 //-------------------------------------------------------------------------------------
-TutorialApplication::~TutorialApplication(void)
+CubeWorld::~CubeWorld(void)
 {
 	delete [] m_Blocks;
 	delete [] m_BlockLight;
 }
 
-void TutorialApplication::initWorldBlocksLight()
+void CubeWorld::initWorldBlocksLight()
 {
 	int x, y, z;
 	blocklight_t Light;
@@ -71,7 +60,7 @@ void TutorialApplication::initWorldBlocksLight()
 
 
 
-void TutorialApplication::initWorldBlocksSphere(void)
+void CubeWorld::initWorldBlocksSphere(void)
 {
 	for (int z = 0; z < WORLD_SIZE; ++z)
 	    {
@@ -85,7 +74,7 @@ void TutorialApplication::initWorldBlocksSphere(void)
 	    }
 }
 
-void TutorialApplication::initWorldBlocksRandom(const int Divisor)
+void CubeWorld::initWorldBlocksRandom(const int Divisor)
 {
 	srand(12345); // To keep it consistent between runs
 
@@ -102,7 +91,7 @@ void TutorialApplication::initWorldBlocksRandom(const int Divisor)
 }
 
 
-Ogre::ManualObject* TutorialApplication::createCubeMesh (Ogre::String name, Ogre::String matName)
+Ogre::ManualObject* CubeWorld::createCubeMesh (Ogre::String name, Ogre::String matName)
 {
    Ogre::ManualObject* cube = new Ogre::ManualObject(name);
    cube->begin(matName);
@@ -139,7 +128,7 @@ Ogre::ManualObject* TutorialApplication::createCubeMesh (Ogre::String name, Ogre
    return cube;
 }
 
-void TutorialApplication::createChunk (const int StartX, const int StartY, const int StartZ)
+void CubeWorld::createChunk (const int StartX, const int StartY, const int StartZ)
 {
 	block_t LastBlock = 0;
 
@@ -299,7 +288,7 @@ void TutorialApplication::createChunk (const int StartX, const int StartY, const
 	++m_ChunkID;
 }
 
-void TutorialApplication::createChunkWater (const int StartX, const int StartY, const int StartZ)
+void CubeWorld::createChunkWater (const int StartX, const int StartY, const int StartZ)
 {
 	block_t LastBlock = 0;
 	int iVertex = 0;
@@ -454,7 +443,7 @@ void TutorialApplication::createChunkWater (const int StartX, const int StartY, 
 
 
 
-void TutorialApplication::createSolidTexture(const TCHAR* pName)
+void CubeWorld::createSolidTexture(const TCHAR* pName)
 {
 	Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create("BoxColor", "General", true);
 	Ogre::Technique* tech = mat->getTechnique(0);
@@ -463,7 +452,7 @@ void TutorialApplication::createSolidTexture(const TCHAR* pName)
 	tex->setColourOperationEx(Ogre::LBX_MODULATE, Ogre::LBS_MANUAL, Ogre::LBS_CURRENT, Ogre::ColourValue(0, 0.5, 0));
 }
 
-void TutorialApplication::createTexture (const TCHAR* pName, const TCHAR* pImageFilename)
+void CubeWorld::createTexture (const TCHAR* pName, const TCHAR* pImageFilename)
 {
 	std::cerr << "*** Creating texture " << pImageFilename << std::endl;
 
@@ -485,7 +474,7 @@ void TutorialApplication::createTexture (const TCHAR* pName, const TCHAR* pImage
 	std::cerr << "*** Texture created " << pImageFilename << std::endl;
 }
 
-void TutorialApplication::createWaterTexture(const TCHAR* pName)
+void CubeWorld::createWaterTexture(const TCHAR* pName)
 {
 	Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create(pName, "General", true );
 	Ogre::Technique* tech = mat->getTechnique(0);
@@ -504,7 +493,7 @@ void TutorialApplication::createWaterTexture(const TCHAR* pName)
 }
 
 
-void TutorialApplication::createScene(void)
+void CubeWorld::createScene(void)
 {
 	// Create textures
 	createTexture("Combined4", "minecraft/terrain.png");
@@ -519,7 +508,7 @@ void TutorialApplication::createScene(void)
 
 }
 
-void TutorialApplication::initWorldBlocksLayers()
+void CubeWorld::initWorldBlocksLayers()
 {
 	// DEACTIVATED BY MISSING FULL TERRAIN GENERATION CODE ... :(
 	/*
@@ -588,7 +577,7 @@ void TutorialApplication::initWorldBlocksLayers()
 }
 
 
-void TutorialApplication::initWorldBlocksLand(void)
+void CubeWorld::initWorldBlocksLand(void)
 {
 	LandMapErosion m_Erosion;
 
@@ -612,7 +601,7 @@ void TutorialApplication::initWorldBlocksLand(void)
 
 
 
-void TutorialApplication::createWorldChunks (void)
+void CubeWorld::createWorldChunks (void)
 {
 	//std::vector<int> VertexArray;
 	//Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create("BoxColor", "General", true );
@@ -642,7 +631,7 @@ void TutorialApplication::createWorldChunks (void)
 }
 
 //-------------------------------------------------------------------------------------
-void TutorialApplication::displaySimpleWorld(void)
+void CubeWorld::displaySimpleWorld(void)
 {
 	// Create a basic green color texture
 	Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create("BoxColor", "General", true);
@@ -698,7 +687,7 @@ extern "C" {
 #endif
     {
         // Create application object
-        TutorialApplication app;
+        CubeWorld app;
 
         try {
             app.go();

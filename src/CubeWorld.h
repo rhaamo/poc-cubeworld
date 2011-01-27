@@ -1,21 +1,11 @@
 /*
 -----------------------------------------------------------------------------
-Filename:    TutorialApplication.h
------------------------------------------------------------------------------
-
-This source file is part of the
-   ___                 __    __ _ _    _
-  /___\__ _ _ __ ___  / / /\ \ (_) | _(_)
- //  // _` | '__/ _ \ \ \/  \/ / | |/ / |
-/ \_// (_| | | |  __/  \  /\  /| |   <| |
-\___/ \__, |_|  \___|   \/  \/ |_|_|\_\_|
-      |___/
-      Tutorial Framework
-      http://www.ogre3d.org/tikiwiki/
+Filename:    CubeWorld.h
 -----------------------------------------------------------------------------
 */
-#ifndef __TutorialApplication_h_
-#define __TutorialApplication_h_
+
+#ifndef __CubeWorld_h_
+#define __CubeWorld_h_
 
 #include "BaseApplication.h"
 
@@ -59,11 +49,11 @@ layer_t g_Layers[] =
 
 
 
-class TutorialApplication : public BaseApplication
+class CubeWorld : public BaseApplication
 {
 public:
-	TutorialApplication(void);
-	virtual ~TutorialApplication(void);
+	CubeWorld(void);
+	virtual ~CubeWorld(void);
 	blocklight_t* m_BlockLight;
 
 	block_t& GetBlockLight (const int x, const int y, const int z)
@@ -114,4 +104,4 @@ protected:
     virtual void createScene(void);
 };
 
-#endif // #ifndef __TutorialApplication_h_
+#endif // #ifndef __CubeWorld_h_

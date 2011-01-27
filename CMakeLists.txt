@@ -36,9 +36,7 @@ elseif (APPLE AND NOT OGRE_BUILD_PLATFORM_IPHONE)
   #CMAKE_FORCE_CXX_COMPILER(gcc-4.0 GNU)
 endif ()
 
-set(OGRE_PROJECT_NAME
-  "OGRETutorialFramework"
-)
+set(OGRE_PROJECT_NAME "CubeWorld")
 
 set(CMAKE_INSTALL_PREFIX "/Users/rhaamo/cubeworld/build/bin")
 
@@ -219,14 +217,14 @@ set(LIBNOISE_LIBRARIES noise)
 
 set(HDRS
 	./src/BaseApplication.h
-	./src/TutorialApplication.h
+	./src/CubeWorld.h
 	./src/erosion.h
 	./src/noiseutils/noiseutils.h
 )
 
 set(SRCS
 	./src/BaseApplication.cpp
-	./src/TutorialApplication.cpp
+	./src/CubeWorld.cpp
 	./src/noiseutils/noiseutils.cpp
 )
 
