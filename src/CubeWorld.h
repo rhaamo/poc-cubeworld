@@ -67,8 +67,8 @@ public:
 private:
 	Ogre::ManualObject* createCubeMesh(Ogre::String name, Ogre::String matName);
 	static const int WORLD_SIZE = 256;	// We'll change these later for various test worlds
-	static const int WORLD_SIZE2 = WORLD_SIZE;
-	static const int WORLD_SIZE3 = WORLD_SIZE;
+	static const int WORLD_SIZE2 = WORLD_SIZE * WORLD_SIZE;
+	static const int WORLD_SIZE3 = WORLD_SIZE * WORLD_SIZE * WORLD_SIZE;
 	static const int CHUNK_SIZE = 256;
 	static const int BLOCK_NULL = 255;
 
