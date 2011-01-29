@@ -218,14 +218,22 @@ set(LIBNOISE_LIBRARIES noise)
 set(HDRS
 	./src/BaseApplication.h
 	./src/CubeWorld.h
-	./src/erosion.h
 	./src/noiseutils/noiseutils.h
+        ./src/il_defs.h
+        ./src/il_landscape.h
+        ./src/il_map.cpp
+        ./src/il_noiseutils.cpp
+        ./src/compat.h
 )
 
 set(SRCS
 	./src/BaseApplication.cpp
 	./src/CubeWorld.cpp
 	./src/noiseutils/noiseutils.cpp
+        ./src/il_defs.cpp
+        ./src/il_landscape.cpp
+        ./src/il_map.cpp
+        ./src/il_noiseutils.cpp
 )
 
 include_directories( ${OIS_INCLUDE_DIRS}
