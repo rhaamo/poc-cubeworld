@@ -3,11 +3,13 @@
 Filename:    CubeWorld.h
 -----------------------------------------------------------------------------
 */
-
 #ifndef __CubeWorld_h_
 #define __CubeWorld_h_
 
 #include "BaseApplication.h"
+#include "compat.h"
+#include "il_map.h"
+#include "il_landscape.h"
 
 typedef unsigned char block_t;
 typedef unsigned char blocklight_t;
@@ -21,7 +23,7 @@ struct blockinfo_t
 };
 struct layer_t
 {
-	block_t Block_ID;
+	block_t BlockID;
 	int MinLevel;
 	int MaxLevel;
 	int SeedOffset;
@@ -40,20 +42,20 @@ blockinfo_t g_BlockInfo[] =
 };
 layer_t g_Layers[] =
 {
-	{ 1, 0, 1, 1 },     // Grass
+	{ 1, 0, 2, 1 },     // Grass
 	{ 2, 0, 10, 2 },    // Soil
 	{ 3, 20, 200, 3 },  // Rock
 	{ 4, 100, 300, 4 }, // Lava
 	{ 255, 0, 0, 0 }    // Must be last
 };
 
-
-
 class CubeWorld : public BaseApplication
 {
 public:
 	CubeWorld(void);
 	virtual ~CubeWorld(void);
+
+	infland::CLandscape m_Landscape;
 	blocklight_t* m_BlockLight;
 
 	block_t& GetBlockLight (const int x, const int y, const int z)
@@ -61,40 +63,48 @@ public:
 		return m_BlockLight[x + y * WORLD_SIZE + z * WORLD_SIZE2];
 	}
 
+
 private:
 	Ogre::ManualObject* createCubeMesh(Ogre::String name, Ogre::String matName);
-
-	void createSolidTexture(const TCHAR* pName);
-	void createTexture(const TCHAR* pName, const TCHAR* pImageFilename);
-	void createWaterTexture(const TCHAR* pName);
-
-
-	static const int WORLD_SIZE = 256; // We'll change these later for various test worlds
+	static const int WORLD_SIZE = 256;	// We'll change these later for various test worlds
 	static const int WORLD_SIZE2 = WORLD_SIZE;
 	static const int WORLD_SIZE3 = WORLD_SIZE;
 	static const int CHUNK_SIZE = 256;
+	static const int BLOCK_NULL = 255;
 
-	static const int BLOCK_NULL = 255; // will be probably something like -1 in the future
+	int m_ChunkID;		        // Used for uniquely naming our chunks
 
-	int m_ChunkID; // Used for uniquely naming our chunks
+	block_t* m_Blocks;	        // Holds the block worlds in a [WORLD_SIZE][WORLD_SIZE][WORLD_SIZE] array
 
-	block_t* m_Blocks; // Holds the block worlds in a [WORLD_SIZE][WORLD_SIZE][WORLD_SIZE] array
-
-	// Read/Write access method for our block world (doesn't check input
+	// Read/write access method for our block world (doesn't check input)
 	block_t& GetBlock (const int x, const int y, const int z)
 	{
 		return m_Blocks[x + y * WORLD_SIZE + z * WORLD_SIZE * WORLD_SIZE];
-	};
+	}
 
 	// Used for filling our block world
-	void initWorldBlocksLand(void);
-	void initWorldBlocksLayers(void);
-	void initWorldBlocksLight();
+        void initWorldBlocksRandom (const int Divisor);
+	void initWorldBlocksSphere (void);
+	void initWorldBlocksLand ();
+	void initWorldBlocksLandRnd ();
+	void initWorldBlocksLayers ();
+	void initWorldBlocksCaves ();
+	void initWorldBlocksLight ();
+
+	// Displays the world using our original "naive" method
+	void displaySimpleWorld (void);
+
 	void createChunk (const int StartX, const int StartY, const int StartZ);
-	void createChunkWater (const int StartX, const int StartY, const int StartZ);
+	void createChunkWFaces (const int StartX, const int StartY, const int StartZ);
 	void createWorldChunks (void);
 
-	//infland::CLandscape m_Landscape;
+	void createSolidTexture(const TCHAR* pName);
+	void createTexture(const TCHAR* pName, const TCHAR* pImageFilename);
+
+	blockinfo_t GetBlockMaterial (block_t block)
+	{
+		return g_BlockInfo[block];
+	}
 
 protected:
     virtual void createScene(void);
