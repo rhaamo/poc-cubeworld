@@ -634,7 +634,7 @@ namespace infland
 
 		ClearClimates();
 
-#if defined(__Linux__) || defined(__APPLE__)
+#if defined(__linux__) || defined(__APPLE__)
 		Climate.Name = "Ocean";
 #else
 		Climate.Name = _T("Ocean");
@@ -646,7 +646,7 @@ namespace infland
 		Climate.MaxAltitude = m_AltitudeParams.SeaLevel;
 		AddClimate(Climate);
 
-#if defined(__Linux__) || defined(__APPLE__)
+#if defined(__linux__) || defined(__APPLE__)
 		Climate.Name = "Tundra";
 #else
 		Climate.Name = _T("Tundra");
@@ -659,7 +659,7 @@ namespace infland
 		Climate.MaxRainfall = 20;
 		AddClimate(Climate);
 
-#if defined(__Linux__) || defined(__APPLE__)
+#if defined(__linux__) || defined(__APPLE__)
 		Climate.Name = "Artic";
 #else
 		Climate.Name = _T("Artic");
@@ -671,7 +671,7 @@ namespace infland
 		Climate.MaxTemperature = 0;
 		AddClimate(Climate);
 
-#if defined(__Linux__) || defined(__APPLE__)
+#if defined(__linux__) || defined(__APPLE__)
 		Climate.Name = "Desert";
 #else
 		Climate.Name = _T("Desert");
@@ -683,7 +683,7 @@ namespace infland
 		Climate.MaxRainfall = 5;
 		AddClimate(Climate);
 
-#if defined(__Linux__) || defined(__APPLE__)
+#if defined(__linux__) || defined(__APPLE__)
 		Climate.Name = "Rain Forest";
 #else
 		Climate.Name = _T("Rain Forest");
@@ -696,7 +696,7 @@ namespace infland
 		Climate.MinTemperature = 20;
 		AddClimate(Climate);
 
-#if defined(__Linux__) || defined(__APPLE__)
+#if defined(__linux__) || defined(__APPLE__)
 		Climate.Name = "Wetland";
 #else
 		Climate.Name = _T("Wetland");
@@ -709,7 +709,7 @@ namespace infland
 		Climate.MinTemperature = 0;
 		AddClimate(Climate);
 
-#if defined(__Linux__) || defined(__APPLE__)
+#if defined(__linux__) || defined(__APPLE__)
 		Climate.Name = "Savanna";
 #else
 		Climate.Name = _T("Savanna");
@@ -722,7 +722,7 @@ namespace infland
 		Climate.MinTemperature = 0;
 		AddClimate(Climate);
 
-#if defined(__Linux__) || defined(__APPLE__)
+#if defined(__linux__) || defined(__APPLE__)
 		Climate.Name = "Warm Temperate";
 #else
 		Climate.Name = _T("Warm Temperate");
@@ -736,7 +736,7 @@ namespace infland
 		Climate.MinTemperature = 10;
 		AddClimate(Climate);
 
-#if defined(__Linux__) || defined(__APPLE__)
+#if defined(__linux__) || defined(__APPLE__)
 		Climate.Name = "Cold Temperate";
 #else
 		Climate.Name = _T("Cold Temperate");
@@ -751,7 +751,7 @@ namespace infland
 		AddClimate(Climate);
 
 		/* Should be the last one */
-#if defined(__Linux__) || defined(__APPLE__)
+#if defined(__linux__) || defined(__APPLE__)
 		Climate.Name = "Undefined";
 #else
 		Climate.Name = _T("Undefined");

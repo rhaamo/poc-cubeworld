@@ -142,7 +142,7 @@ namespace infland
 		if (OrigSize <= 0) return std::string();
 		pTempString = new char[OrigSize + 4];
 
-#if defined(__Linux__) || defined(__APPLE__)
+#if defined(__linux__) || defined(__APPLE__)
 		wcstombs(pTempString, Source.c_str(), OrigSize+1);
 #else
 		wcstombs_s(&ConvertedChars, pTempString, OrigSize+1, Source.c_str(), _TRUNCATE);

@@ -1,5 +1,5 @@
 /* Various compat things */
 
-#if defined(__Linux__) || defined(__APPLE__)
+#if defined(__linux__) || defined(__APPLE__)
 typedef char TCHAR;
 #endif
