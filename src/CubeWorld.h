@@ -42,6 +42,7 @@ blockinfo_t g_BlockInfo[] =
 };
 layer_t g_Layers[] =
 {
+	{ 5, 0, 2, 5 },     // Water
 	{ 1, 0, 2, 1 },     // Grass
 	{ 2, 0, 10, 2 },    // Soil
 	{ 3, 20, 200, 3 },  // Rock
@@ -96,10 +97,12 @@ private:
 
 	void createChunk (const int StartX, const int StartY, const int StartZ);
 	void createChunkWFaces (const int StartX, const int StartY, const int StartZ);
+	void createChunkWater (const int StartX, const int StartY, const int StartZ);
 	void createWorldChunks (void);
 
 	void createSolidTexture(const TCHAR* pName);
 	void createTexture(const TCHAR* pName, const TCHAR* pImageFilename);
+	void createWaterTexture(const TCHAR* pName);
 
 	blockinfo_t GetBlockMaterial (block_t block)
 	{

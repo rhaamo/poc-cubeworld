@@ -30,6 +30,7 @@ CubeWorld::~CubeWorld(void)
 void CubeWorld::createScene(void)
 {
 	createTexture("TerrainImage", "minecraft/terrain.png");
+	createWaterTexture("WaterTest");
 	createWorldChunks();
 
 	mSceneMgr->setSkyDome(true, "Examples/CloudySky", 2, 8, 100);
@@ -470,7 +471,8 @@ void CubeWorld::createChunk (const int StartX, const int StartY, const int Start
 				for (int x = StartX; x < CHUNK_SIZE + StartX; ++x)
 				    {
 					    Block = GetBlock(x,y,z);
-					    if (Block == 0) continue;
+					    if (Block == 0) continue; // Ignore air blocks
+					    if (Block == 5) continue; // Ignore water blocks
 
 					    //Compute the block's texture coordinates
 					    V1 = 0.25f * (float)(Block - 1);
@@ -487,19 +489,17 @@ void CubeWorld::createChunk (const int StartX, const int StartY, const int Start
 					    // std::cerr << "*** BlockLight2: " << BlockLight2 << std::endl;
 
 					    //x-1
-					    if (Block1 == 0)
+					    if (Block1 == 0 || Block1 == 5)
 						{
-							MeshChunk->position(x, y,   z+1); MeshChunk->normal(-1,0,0);	MeshChunk->textureCoord(0, V2);
-							MeshChunk->position(x, y+1, z+1); MeshChunk->normal(-1,0,0);	MeshChunk->textureCoord(1, V2);
-							MeshChunk->position(x, y+1, z);	  MeshChunk->normal(-1,0,0);	MeshChunk->textureCoord(1, V1);
-							MeshChunk->position(x, y,   z);	  MeshChunk->normal(-1,0,0);	MeshChunk->textureCoord(0, V1);
+							MeshChunk->position(x, y,   z+1); MeshChunk->normal(-1,0,0);	MeshChunk->textureCoord(0, V2); MeshChunk->colour(BlockLight, BlockLight, BlockLight);
+							MeshChunk->position(x, y+1, z+1); MeshChunk->normal(-1,0,0);	MeshChunk->textureCoord(1, V2); MeshChunk->colour(BlockLight, BlockLight, BlockLight);
+							MeshChunk->position(x, y+1, z);	  MeshChunk->normal(-1,0,0);	MeshChunk->textureCoord(1, V1); MeshChunk->colour(BlockLight, BlockLight, BlockLight);
+							MeshChunk->position(x, y,   z);	  MeshChunk->normal(-1,0,0);	MeshChunk->textureCoord(0, V1); MeshChunk->colour(BlockLight, BlockLight, BlockLight);
 
 							MeshChunk->triangle(iVertex, iVertex+1, iVertex+2);
 							MeshChunk->triangle(iVertex+2, iVertex+3, iVertex);
 
 							iVertex += 4;
-
-							MeshChunk->colour(BlockLight, BlockLight, BlockLight);
 						}
 
 					    //x+1
@@ -507,19 +507,17 @@ void CubeWorld::createChunk (const int StartX, const int StartY, const int Start
 					    if (x < SX + MaxSize - 1)
 						    Block1 = GetBlock(x+1,y,z);
 
-					    if (Block1 == 0)
+					    if (Block1 == 0 || Block1 == 5)
 						{
-							MeshChunk->position(x+1, y,   z);	MeshChunk->normal(1,0,0); MeshChunk->textureCoord(0, V2);
-							MeshChunk->position(x+1, y+1, z);	MeshChunk->normal(1,0,0); MeshChunk->textureCoord(1, V2);
-							MeshChunk->position(x+1, y+1, z+1);	MeshChunk->normal(1,0,0); MeshChunk->textureCoord(1, V1);
-							MeshChunk->position(x+1, y,   z+1);	MeshChunk->normal(1,0,0); MeshChunk->textureCoord(0, V1);
+							MeshChunk->position(x+1, y,   z);	MeshChunk->normal(1,0,0); MeshChunk->textureCoord(0, V2); MeshChunk->colour(BlockLight, BlockLight, BlockLight);
+							MeshChunk->position(x+1, y+1, z);	MeshChunk->normal(1,0,0); MeshChunk->textureCoord(1, V2); MeshChunk->colour(BlockLight, BlockLight, BlockLight);
+							MeshChunk->position(x+1, y+1, z+1);	MeshChunk->normal(1,0,0); MeshChunk->textureCoord(1, V1); MeshChunk->colour(BlockLight, BlockLight, BlockLight);
+							MeshChunk->position(x+1, y,   z+1);	MeshChunk->normal(1,0,0); MeshChunk->textureCoord(0, V1); MeshChunk->colour(BlockLight, BlockLight, BlockLight);
 
 							MeshChunk->triangle(iVertex, iVertex+1, iVertex+2);
 							MeshChunk->triangle(iVertex+2, iVertex+3, iVertex);
 
 							iVertex += 4;
-
-							MeshChunk->colour(BlockLight, BlockLight, BlockLight);
 						}
 
 					    //y-1
@@ -527,19 +525,17 @@ void CubeWorld::createChunk (const int StartX, const int StartY, const int Start
 					    if (y > SY)
 						    Block1 = GetBlock(x,y-1,z);
 
-					    if (Block1 == 0)
+					    if (Block1 == 0 || Block1 == 5)
 						{
-							MeshChunk->position(x,   y, z);		MeshChunk->normal(0,-1,0); MeshChunk->textureCoord(0, V2);
-							MeshChunk->position(x+1, y, z);		MeshChunk->normal(0,-1,0); MeshChunk->textureCoord(1, V2);
-							MeshChunk->position(x+1, y, z+1);	MeshChunk->normal(0,-1,0); MeshChunk->textureCoord(1, V1);
-							MeshChunk->position(x,   y, z+1);	MeshChunk->normal(0,-1,0); MeshChunk->textureCoord(0, V1);
+							MeshChunk->position(x,   y, z);		MeshChunk->normal(0,-1,0); MeshChunk->textureCoord(0, V2); MeshChunk->colour(BlockLight2, BlockLight2, BlockLight2);
+							MeshChunk->position(x+1, y, z);		MeshChunk->normal(0,-1,0); MeshChunk->textureCoord(1, V2); MeshChunk->colour(BlockLight2, BlockLight2, BlockLight2);
+							MeshChunk->position(x+1, y, z+1);	MeshChunk->normal(0,-1,0); MeshChunk->textureCoord(1, V1); MeshChunk->colour(BlockLight2, BlockLight2, BlockLight2);
+							MeshChunk->position(x,   y, z+1);	MeshChunk->normal(0,-1,0); MeshChunk->textureCoord(0, V1); MeshChunk->colour(BlockLight2, BlockLight2, BlockLight2);
 
 							MeshChunk->triangle(iVertex, iVertex+1, iVertex+2);
 							MeshChunk->triangle(iVertex+2, iVertex+3, iVertex);
 
 							iVertex += 4;
-
-							MeshChunk->colour(BlockLight2, BlockLight2, BlockLight2);
 						}
 
 
@@ -548,19 +544,17 @@ void CubeWorld::createChunk (const int StartX, const int StartY, const int Start
 					    if (y < SY + MaxSize - 1)
 						    Block1 = GetBlock(x,y+1,z);
 
-					    if (Block1 == 0)
+					    if (Block1 == 0 || Block1 == 5)
 						{
-							MeshChunk->position(x,   y+1, z+1);		MeshChunk->normal(0,1,0); MeshChunk->textureCoord(0, V2);
-							MeshChunk->position(x+1, y+1, z+1);		MeshChunk->normal(0,1,0); MeshChunk->textureCoord(1, V2);
-							MeshChunk->position(x+1, y+1, z);		MeshChunk->normal(0,1,0); MeshChunk->textureCoord(1, V1);
-							MeshChunk->position(x,   y+1, z);		MeshChunk->normal(0,1,0); MeshChunk->textureCoord(0, V1);
+							MeshChunk->position(x,   y+1, z+1);		MeshChunk->normal(0,1,0); MeshChunk->textureCoord(0, V2); MeshChunk->colour(BlockLight2, BlockLight2, BlockLight2);
+							MeshChunk->position(x+1, y+1, z+1);		MeshChunk->normal(0,1,0); MeshChunk->textureCoord(1, V2); MeshChunk->colour(BlockLight2, BlockLight2, BlockLight2);
+							MeshChunk->position(x+1, y+1, z);		MeshChunk->normal(0,1,0); MeshChunk->textureCoord(1, V1); MeshChunk->colour(BlockLight2, BlockLight2, BlockLight2);
+							MeshChunk->position(x,   y+1, z);		MeshChunk->normal(0,1,0); MeshChunk->textureCoord(0, V1); MeshChunk->colour(BlockLight2, BlockLight2, BlockLight2);
 
 							MeshChunk->triangle(iVertex, iVertex+1, iVertex+2);
 							MeshChunk->triangle(iVertex+2, iVertex+3, iVertex);
 
 							iVertex += 4;
-
-							MeshChunk->colour(BlockLight2, BlockLight2, BlockLight2);
 						}
 
 					    //z-1
@@ -568,19 +562,17 @@ void CubeWorld::createChunk (const int StartX, const int StartY, const int Start
 					    if (z > SZ)
 						    Block1 = GetBlock(x,y,z-1);
 
-					    if (Block1 == 0)
+					    if (Block1 == 0 || Block1 == 5)
 						{
-							MeshChunk->position(x,   y+1, z);		MeshChunk->normal(0,0,-1); MeshChunk->textureCoord(0, V2);
-							MeshChunk->position(x+1, y+1, z);		MeshChunk->normal(0,0,-1); MeshChunk->textureCoord(1, V2);
-							MeshChunk->position(x+1, y,   z);		MeshChunk->normal(0,0,-1); MeshChunk->textureCoord(1, V1);
-							MeshChunk->position(x,   y,   z);		MeshChunk->normal(0,0,-1); MeshChunk->textureCoord(0, V1);
+							MeshChunk->position(x,   y+1, z);		MeshChunk->normal(0,0,-1); MeshChunk->textureCoord(0, V2); MeshChunk->colour(BlockLight1, BlockLight1, BlockLight1);
+							MeshChunk->position(x+1, y+1, z);		MeshChunk->normal(0,0,-1); MeshChunk->textureCoord(1, V2); MeshChunk->colour(BlockLight1, BlockLight1, BlockLight1);
+							MeshChunk->position(x+1, y,   z);		MeshChunk->normal(0,0,-1); MeshChunk->textureCoord(1, V1); MeshChunk->colour(BlockLight1, BlockLight1, BlockLight1);
+							MeshChunk->position(x,   y,   z);		MeshChunk->normal(0,0,-1); MeshChunk->textureCoord(0, V1); MeshChunk->colour(BlockLight1, BlockLight1, BlockLight1);
 
 							MeshChunk->triangle(iVertex, iVertex+1, iVertex+2);
 							MeshChunk->triangle(iVertex+2, iVertex+3, iVertex);
 
 							iVertex += 4;
-
-							MeshChunk->colour(BlockLight1, BlockLight1, BlockLight1);
 						}
 
 
@@ -589,19 +581,17 @@ void CubeWorld::createChunk (const int StartX, const int StartY, const int Start
 					    if (z < SZ + MaxSize - 1)
 						    Block1 = GetBlock(x,y,z+1);
 
-					    if (Block1 == 0)
+					    if (Block1 == 0 || Block1 == 5)
 						{
-							MeshChunk->position(x,   y,   z+1);		MeshChunk->normal(0,0,1); MeshChunk->textureCoord(0, V2);
-							MeshChunk->position(x+1, y,   z+1);		MeshChunk->normal(0,0,1); MeshChunk->textureCoord(1, V2);
-							MeshChunk->position(x+1, y+1, z+1);		MeshChunk->normal(0,0,1); MeshChunk->textureCoord(1, V1);
-							MeshChunk->position(x,   y+1, z+1);		MeshChunk->normal(0,0,1); MeshChunk->textureCoord(0, V1);
+							MeshChunk->position(x,   y,   z+1);		MeshChunk->normal(0,0,1); MeshChunk->textureCoord(0, V2); MeshChunk->colour(BlockLight1, BlockLight1, BlockLight1);
+							MeshChunk->position(x+1, y,   z+1);		MeshChunk->normal(0,0,1); MeshChunk->textureCoord(1, V2); MeshChunk->colour(BlockLight1, BlockLight1, BlockLight1);
+							MeshChunk->position(x+1, y+1, z+1);		MeshChunk->normal(0,0,1); MeshChunk->textureCoord(1, V1); MeshChunk->colour(BlockLight1, BlockLight1, BlockLight1);
+							MeshChunk->position(x,   y+1, z+1);		MeshChunk->normal(0,0,1); MeshChunk->textureCoord(0, V1); MeshChunk->colour(BlockLight1, BlockLight1, BlockLight1);
 
 							MeshChunk->triangle(iVertex, iVertex+1, iVertex+2);
 							MeshChunk->triangle(iVertex+2, iVertex+3, iVertex);
 
 							iVertex += 4;
-
-							MeshChunk->colour(BlockLight1, BlockLight1, BlockLight1);
 						}
 
 
@@ -615,6 +605,168 @@ void CubeWorld::createChunk (const int StartX, const int StartY, const int Start
 	++m_ChunkID;
 
 }
+
+void CubeWorld::createChunkWater (const int StartX, const int StartY, const int StartZ)
+{
+	block_t LastBlock = 0;
+
+	int iVertex = 0;
+	block_t Block;
+	block_t Block1;
+
+	/* Only create visible faces of chunk */
+	block_t DefaultBlock = 1;
+	int SX = 0;
+	int SY = 0;
+	int SZ = 0;
+	int MaxSize = WORLD_SIZE;
+
+	float BlockLight;
+	float BlockLight1;
+	float BlockLight2;
+
+	float V1, V2;
+
+	Ogre::ManualObject* MeshChunk = new Ogre::ManualObject("MeshWaterChunk" + Ogre::StringConverter::toString(m_ChunkID));
+	MeshChunk->setDynamic(true);
+	MeshChunk->begin("WaterTest");
+
+	for (int z = StartZ; z < CHUNK_SIZE + StartZ; ++z)
+	{
+		for (int y = StartY; y < CHUNK_SIZE + StartY; ++y)
+		{
+			for (int x = StartX; x < CHUNK_SIZE + StartX; ++x)
+			{
+				Block = GetBlock(x,y,z);
+				if (Block != 5) continue;   //Only create water meshes
+
+
+				BlockLight  = GetBlockLight(x, y, z) / 255.0f;
+				BlockLight1 = BlockLight * 0.9f;
+				BlockLight2 = BlockLight * 0.8f;
+
+
+				V1 = 1.0f/5.0f * (float)(Block - 1);
+				V2 = V1 + 1.0f/5.0f;
+
+				//x-1
+				Block1 = DefaultBlock;
+				if (x > SX) Block1 = GetBlock(x-1,y,z);
+
+				if (Block1 != 5)
+				{
+                                        //create face of block
+					MeshChunk->position(x, y,   z+1); MeshChunk->normal(-1,0,0);	MeshChunk->textureCoord(0, V2); MeshChunk->colour(BlockLight, BlockLight, BlockLight);
+					MeshChunk->position(x, y+1, z+1); MeshChunk->normal(-1,0,0);	MeshChunk->textureCoord(1, V2); MeshChunk->colour(BlockLight, BlockLight, BlockLight);
+					MeshChunk->position(x, y+1, z);	  MeshChunk->normal(-1,0,0);	MeshChunk->textureCoord(1, V1); MeshChunk->colour(BlockLight, BlockLight, BlockLight);
+					MeshChunk->position(x, y,   z);	  MeshChunk->normal(-1,0,0);	MeshChunk->textureCoord(0, V1); MeshChunk->colour(BlockLight, BlockLight, BlockLight);
+
+					MeshChunk->triangle(iVertex, iVertex+1, iVertex+2);
+					MeshChunk->triangle(iVertex+2, iVertex+3, iVertex);
+
+					iVertex += 4;
+                                }
+
+				//x+1
+				Block1 = DefaultBlock;
+				if (x < SX + MaxSize - 1)
+					Block1 = GetBlock(x+1,y,z);
+
+				if (Block1 != 5)
+				    {
+					    MeshChunk->position(x+1, y,   z);	MeshChunk->normal(1,0,0); MeshChunk->textureCoord(0, V2); MeshChunk->colour(BlockLight, BlockLight, BlockLight);
+					    MeshChunk->position(x+1, y+1, z);	MeshChunk->normal(1,0,0); MeshChunk->textureCoord(1, V2); MeshChunk->colour(BlockLight, BlockLight, BlockLight);
+					    MeshChunk->position(x+1, y+1, z+1);	MeshChunk->normal(1,0,0); MeshChunk->textureCoord(1, V1); MeshChunk->colour(BlockLight, BlockLight, BlockLight);
+					    MeshChunk->position(x+1, y,   z+1);	MeshChunk->normal(1,0,0); MeshChunk->textureCoord(0, V1); MeshChunk->colour(BlockLight, BlockLight, BlockLight);
+
+					    MeshChunk->triangle(iVertex, iVertex+1, iVertex+2);
+					    MeshChunk->triangle(iVertex+2, iVertex+3, iVertex);
+
+					    iVertex += 4;
+				    }
+
+				//y-1
+				Block1 = DefaultBlock;
+				if (y > SY)
+					Block1 = GetBlock(x,y-1,z);
+
+				if (Block1 != 5)
+				    {
+					    MeshChunk->position(x,   y, z);		MeshChunk->normal(0,-1,0); MeshChunk->textureCoord(0, V2); MeshChunk->colour(BlockLight2, BlockLight2, BlockLight2);
+					    MeshChunk->position(x+1, y, z);		MeshChunk->normal(0,-1,0); MeshChunk->textureCoord(1, V2); MeshChunk->colour(BlockLight2, BlockLight2, BlockLight2);
+					    MeshChunk->position(x+1, y, z+1);	MeshChunk->normal(0,-1,0); MeshChunk->textureCoord(1, V1); MeshChunk->colour(BlockLight2, BlockLight2, BlockLight2);
+					    MeshChunk->position(x,   y, z+1);	MeshChunk->normal(0,-1,0); MeshChunk->textureCoord(0, V1); MeshChunk->colour(BlockLight2, BlockLight2, BlockLight2);
+
+					    MeshChunk->triangle(iVertex, iVertex+1, iVertex+2);
+					    MeshChunk->triangle(iVertex+2, iVertex+3, iVertex);
+
+					    iVertex += 4;
+				    }
+
+
+				//y+1
+				Block1 = DefaultBlock;
+				if (y < SY + MaxSize - 1)
+					Block1 = GetBlock(x,y+1,z);
+
+				if (Block1 != 5)
+				    {
+					    MeshChunk->position(x,   y+1, z+1);		MeshChunk->normal(0,1,0); MeshChunk->textureCoord(0, V2); MeshChunk->colour(BlockLight2, BlockLight2, BlockLight2);
+					    MeshChunk->position(x+1, y+1, z+1);		MeshChunk->normal(0,1,0); MeshChunk->textureCoord(1, V2); MeshChunk->colour(BlockLight2, BlockLight2, BlockLight2);
+					    MeshChunk->position(x+1, y+1, z);		MeshChunk->normal(0,1,0); MeshChunk->textureCoord(1, V1); MeshChunk->colour(BlockLight2, BlockLight2, BlockLight2);
+					    MeshChunk->position(x,   y+1, z);		MeshChunk->normal(0,1,0); MeshChunk->textureCoord(0, V1); MeshChunk->colour(BlockLight2, BlockLight2, BlockLight2);
+
+					    MeshChunk->triangle(iVertex, iVertex+1, iVertex+2);
+					    MeshChunk->triangle(iVertex+2, iVertex+3, iVertex);
+
+					    iVertex += 4;
+				    }
+
+				//z-1
+				Block1 = DefaultBlock;
+				if (z > SZ)
+					Block1 = GetBlock(x,y,z-1);
+
+				if (Block1 != 5)
+				    {
+					    MeshChunk->position(x,   y+1, z);		MeshChunk->normal(0,0,-1); MeshChunk->textureCoord(0, V2); MeshChunk->colour(BlockLight1, BlockLight1, BlockLight1);
+					    MeshChunk->position(x+1, y+1, z);		MeshChunk->normal(0,0,-1); MeshChunk->textureCoord(1, V2); MeshChunk->colour(BlockLight1, BlockLight1, BlockLight1);
+					    MeshChunk->position(x+1, y,   z);		MeshChunk->normal(0,0,-1); MeshChunk->textureCoord(1, V1); MeshChunk->colour(BlockLight1, BlockLight1, BlockLight1);
+					    MeshChunk->position(x,   y,   z);		MeshChunk->normal(0,0,-1); MeshChunk->textureCoord(0, V1); MeshChunk->colour(BlockLight1, BlockLight1, BlockLight1);
+
+					    MeshChunk->triangle(iVertex, iVertex+1, iVertex+2);
+					    MeshChunk->triangle(iVertex+2, iVertex+3, iVertex);
+
+					    iVertex += 4;
+				    }
+
+
+				//z+1
+				Block1 = DefaultBlock;
+				if (z < SZ + MaxSize - 1)
+					Block1 = GetBlock(x,y,z+1);
+
+				if (Block1 != 5)
+				    {
+					    MeshChunk->position(x,   y,   z+1);		MeshChunk->normal(0,0,1); MeshChunk->textureCoord(0, V2); MeshChunk->colour(BlockLight1, BlockLight1, BlockLight1);
+					    MeshChunk->position(x+1, y,   z+1);		MeshChunk->normal(0,0,1); MeshChunk->textureCoord(1, V2); MeshChunk->colour(BlockLight1, BlockLight1, BlockLight1);
+					    MeshChunk->position(x+1, y+1, z+1);		MeshChunk->normal(0,0,1); MeshChunk->textureCoord(1, V1); MeshChunk->colour(BlockLight1, BlockLight1, BlockLight1);
+					    MeshChunk->position(x,   y+1, z+1);		MeshChunk->normal(0,0,1); MeshChunk->textureCoord(0, V1); MeshChunk->colour(BlockLight1, BlockLight1, BlockLight1);
+
+					    MeshChunk->triangle(iVertex, iVertex+1, iVertex+2);
+					    MeshChunk->triangle(iVertex+2, iVertex+3, iVertex);
+
+					    iVertex += 4;
+				    }
+			}
+		}
+	}
+	MeshChunk->end();
+	mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(MeshChunk);
+	++m_ChunkID;
+
+}
+
 
 void CubeWorld::createWorldChunks (void)
 {
@@ -635,6 +787,7 @@ void CubeWorld::createWorldChunks (void)
 			for (int x = 0; x < WORLD_SIZE; x += CHUNK_SIZE)
 			{
 				createChunk(x,y,z); /* WFaces or not */
+				createChunkWater(x, y, z);
 			}
 		}
 	}
@@ -668,7 +821,21 @@ void CubeWorld::createTexture (const TCHAR* pName, const TCHAR* pImageFilename)
 	tech->setLightingEnabled(false);
 }
 
+void CubeWorld::createWaterTexture (const TCHAR* pName)
+{
+	Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create(pName, "General", true );
+	Ogre::Technique* tech = mat->getTechnique(0);
+	Ogre::Pass* pass = tech->getPass(0);
+	Ogre::TextureUnitState* tex = pass->createTextureUnitState();
 
+	tech->setLightingEnabled(false);
+
+	pass->setSceneBlending(Ogre::SBT_TRANSPARENT_ALPHA);
+	pass->setDepthWriteEnabled(false);
+
+	tex->setColourOperationEx(Ogre::LBX_SOURCE1, Ogre::LBS_MANUAL, Ogre::LBS_CURRENT, Ogre::ColourValue(0, 0, 1));
+	tex->setAlphaOperation(Ogre::LBX_SOURCE1, Ogre::LBS_MANUAL, Ogre::LBS_CURRENT, 0.5);
+}
 
 
 
