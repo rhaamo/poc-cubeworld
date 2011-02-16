@@ -53,16 +53,16 @@ if (APPLE)
     set(OGRE_SAMPLES_INCLUDEPATH "${OGRE_SOURCE_DIR}/Samples/Common/include" )
 endif (APPLE)
 
-if(LINUX)
+if(${CMAKE_SYSTEM} MATCHES "Linux")
     # Include necessary submodules
-    set(OGRE_SOURCE_DIR "/usr/lib/OGRE/")
+    set(OGRE_SOURCE_DIR "/usr/lib/OGRE")
     set(CMAKE_MODULE_PATH
 	"${OGRE_SOURCE_DIR}/cmake"
 	"${OGRE_SOURCE_DIR}/cmake/Utils"
 	"${OGRE_SOURCE_DIR}/cmake/Packages"
 	)
     set(OGRE_SAMPLES_INCLUDEPATH "${OGRE_SOURCE_DIR}/Samples/Common/include" )
-endif (LINUX)
+endif (${CMAKE_SYSTEM} MATCHES "Linux")
 
 include(CMakeDependentOption)
 include(CheckCXXCompilerFlag)
