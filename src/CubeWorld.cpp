@@ -787,7 +787,7 @@ void CubeWorld::createWorldChunks (void)
 			for (int x = 0; x < WORLD_SIZE; x += CHUNK_SIZE)
 			{
 				createChunk(x,y,z); /* WFaces or not */
-				createChunkWater(x, y, z);
+				//createChunkWater(x, y, z);
 			}
 		}
 	}
