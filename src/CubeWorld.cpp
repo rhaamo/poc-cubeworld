@@ -18,6 +18,12 @@ CubeWorld::CubeWorld(void)
 	memset(m_BlockLight, 255, sizeof(blocklight_t) * WORLD_SIZE3);
 	initWorldBlocksLight();
 
+	// Noon light levels to start with
+	m_LightAngle = 90; //10;
+	m_LightColor = Ogre::ColourValue(1, 1, 1); // 1, 0.6, 0.04
+	m_FogColor = m_LightColor * 0.8f;
+	m_AmbientColor = m_LightColor / 3.0f;
+
 }
 //-------------------------------------------------------------------------------------
 CubeWorld::~CubeWorld(void)
@@ -33,7 +39,8 @@ void CubeWorld::createScene(void)
 	createWaterTexture("WaterTest");
 	createWorldChunks();
 
-	mSceneMgr->setSkyDome(true, "Examples/CloudySky", 2, 8, 100);
+	createSkyTexture("SkyDome1");
+	mSceneMgr->setSkyDome(true, "SkyDome1", 2, 8, 100);
 
 	// Temporary deactivated
 	// mSceneMgr->setFog(Ogre::FOG_LINEAR, Ogre::ColourValue(0.8, 0.8, 1), 0.05, 0.0, 200);
@@ -41,7 +48,6 @@ void CubeWorld::createScene(void)
 	// mCamera->setNearClipDistance(0.01);
 
 	mSceneMgr->setAmbientLight(Ogre::ColourValue(0.02, 0.02, 0.02));
-
 
 }
 
@@ -444,12 +450,12 @@ void CubeWorld::createChunkWFaces (const int StartX, const int StartY, const int
 	++m_ChunkID;
 }
 
-void CubeWorld::createChunk (const int StartX, const int StartY, const int StartZ)
+void CubeWorld::createChunk (Ogre::ManualObject* MeshChunk, const int StartX, const int StartY, const int StartZ)
 {
 	block_t LastBlock = 0;
 
-	Ogre::ManualObject* MeshChunk = new Ogre::ManualObject("MeshMatChunk" + Ogre::StringConverter::toString(m_ChunkID));
-	MeshChunk->begin("TerrainImage");
+	//Ogre::ManualObject* MeshChunk = new Ogre::ManualObject("MeshMatChunk" + Ogre::StringConverter::toString(m_ChunkID));
+	//MeshChunk->begin("TerrainImage");
 
 	int iVertex = 0;
 	block_t Block;
@@ -463,6 +469,12 @@ void CubeWorld::createChunk (const int StartX, const int StartY, const int Start
 	int MaxSize = WORLD_SIZE;
 	float V1, V2;
 	float BlockLight;
+
+	Ogre::ColourValue BlockColory1;    //Top face
+	Ogre::ColourValue BlockColory2;    //Bottom face
+	Ogre::ColourValue BlockColorx1;    //Sunset face
+	Ogre::ColourValue BlockColorx2;    //Sunrise face
+	Ogre::ColourValue BlockColorz;     //Front/back faces
 
 	for (int z = StartZ; z < CHUNK_SIZE + StartZ; ++z)
 	    {
@@ -478,9 +490,6 @@ void CubeWorld::createChunk (const int StartX, const int StartY, const int Start
 					    V1 = 0.25f * (float)(Block - 1);
 					    V2 = V1 + 0.25f;
 
-					    Block1 = DefaultBlock;
-					    if (x > SX) Block1 = GetBlock(x-1,y,z);
-
 					    BlockLight  = GetBlockLight(x, y, z) / 255.0f;  //For the two x faces
 					    float BlockLight1 = BlockLight * 0.9f;		//For the two z faces
 					    float BlockLight2 = BlockLight * 0.8f;		//For the two y faces
@@ -488,13 +497,56 @@ void CubeWorld::createChunk (const int StartX, const int StartY, const int Start
 					    // std::cerr << "*** BlockLight1: " << BlockLight1 << std::endl;
 					    // std::cerr << "*** BlockLight2: " << BlockLight2 << std::endl;
 
+					    float BaseLight = GetBlockLight(x, y, z) / 255.0f;
+					    float Factor;
+
+					    if (m_LightAngle >= 0 && m_LightAngle <= 180)
+						    Factor = sin(m_LightAngle * 3.1415926f / 180.0f);
+					    else
+						    Factor = 0;
+
+					    if (Factor < 0.1f)
+						    Factor = 0.1f;
+					    BlockColory1 = m_LightColor * (Factor * BaseLight) + m_AmbientColor;
+					    BlockColory1.saturate();
+					    BlockColory2 = m_LightColor * (Factor / 2.0f * BaseLight) + m_AmbientColor;
+					    BlockColory2.saturate();
+					    BlockColorz  = m_LightColor * (Factor * 0.70f * BaseLight) + m_AmbientColor;
+					    BlockColorz.saturate();
+					    BlockColorz *= 0.80f;
+
+					    if (m_LightAngle >= 315 || m_LightAngle <= 45)
+						    Factor = fabs(cos(m_LightAngle * 3.1415926f / 180.0f));
+					    else
+						    Factor = fabs(sin(m_LightAngle * 3.1415926f / 180.0f));
+					    if (Factor < 0.1f)
+						    Factor = 0.1f;
+					    BlockColorx1 = m_LightColor * (Factor * 0.80f * BaseLight) + m_AmbientColor;
+					    BlockColorx1.saturate();
+					    BlockColorx1 *= 0.95f;
+
+					    if (m_LightAngle >= 135 && m_LightAngle <= 225)
+						    Factor = fabs(cos(m_LightAngle * 3.1415926f / 180.0f));
+					    else
+						    Factor = fabs(sin(m_LightAngle * 3.1415926f / 180.0f));
+
+					    if (Factor < 0.1f)
+						    Factor = 0.1f;
+					    BlockColorx2 = m_LightColor * (Factor * 0.80f * BaseLight) + m_AmbientColor;
+					    BlockColorx2.saturate();
+					    BlockColorx2 *= 0.95f;
+
+
+					    Block1 = DefaultBlock;
+					    if (x > SX)
+						    Block1 = GetBlock(x-1,y,z);
 					    //x-1
-					    if (Block1 == 0 || Block1 == 5)
+					    if (g_BlockInfo[Block1].Transparent)
 						{
-							MeshChunk->position(x, y,   z+1); MeshChunk->normal(-1,0,0);	MeshChunk->textureCoord(0, V2); MeshChunk->colour(BlockLight, BlockLight, BlockLight);
-							MeshChunk->position(x, y+1, z+1); MeshChunk->normal(-1,0,0);	MeshChunk->textureCoord(1, V2); MeshChunk->colour(BlockLight, BlockLight, BlockLight);
-							MeshChunk->position(x, y+1, z);	  MeshChunk->normal(-1,0,0);	MeshChunk->textureCoord(1, V1); MeshChunk->colour(BlockLight, BlockLight, BlockLight);
-							MeshChunk->position(x, y,   z);	  MeshChunk->normal(-1,0,0);	MeshChunk->textureCoord(0, V1); MeshChunk->colour(BlockLight, BlockLight, BlockLight);
+							MeshChunk->position(x, y,   z+1); MeshChunk->normal(-1,0,0);	MeshChunk->textureCoord(0, V2); MeshChunk->colour(BlockColorx1);
+							MeshChunk->position(x, y+1, z+1); MeshChunk->normal(-1,0,0);	MeshChunk->textureCoord(1, V2); MeshChunk->colour(BlockColorx1);
+							MeshChunk->position(x, y+1, z);	  MeshChunk->normal(-1,0,0);	MeshChunk->textureCoord(1, V1); MeshChunk->colour(BlockColorx1);
+							MeshChunk->position(x, y,   z);	  MeshChunk->normal(-1,0,0);	MeshChunk->textureCoord(0, V1); MeshChunk->colour(BlockColorx1);
 
 							MeshChunk->triangle(iVertex, iVertex+1, iVertex+2);
 							MeshChunk->triangle(iVertex+2, iVertex+3, iVertex);
@@ -507,12 +559,12 @@ void CubeWorld::createChunk (const int StartX, const int StartY, const int Start
 					    if (x < SX + MaxSize - 1)
 						    Block1 = GetBlock(x+1,y,z);
 
-					    if (Block1 == 0 || Block1 == 5)
+					    if (g_BlockInfo[Block1].Transparent)
 						{
-							MeshChunk->position(x+1, y,   z);	MeshChunk->normal(1,0,0); MeshChunk->textureCoord(0, V2); MeshChunk->colour(BlockLight, BlockLight, BlockLight);
-							MeshChunk->position(x+1, y+1, z);	MeshChunk->normal(1,0,0); MeshChunk->textureCoord(1, V2); MeshChunk->colour(BlockLight, BlockLight, BlockLight);
-							MeshChunk->position(x+1, y+1, z+1);	MeshChunk->normal(1,0,0); MeshChunk->textureCoord(1, V1); MeshChunk->colour(BlockLight, BlockLight, BlockLight);
-							MeshChunk->position(x+1, y,   z+1);	MeshChunk->normal(1,0,0); MeshChunk->textureCoord(0, V1); MeshChunk->colour(BlockLight, BlockLight, BlockLight);
+							MeshChunk->position(x+1, y,   z);	MeshChunk->normal(1,0,0); MeshChunk->textureCoord(0, V2); MeshChunk->colour(BlockColorx2);
+							MeshChunk->position(x+1, y+1, z);	MeshChunk->normal(1,0,0); MeshChunk->textureCoord(1, V2); MeshChunk->colour(BlockColorx2);
+							MeshChunk->position(x+1, y+1, z+1);	MeshChunk->normal(1,0,0); MeshChunk->textureCoord(1, V1); MeshChunk->colour(BlockColorx2);
+							MeshChunk->position(x+1, y,   z+1);	MeshChunk->normal(1,0,0); MeshChunk->textureCoord(0, V1); MeshChunk->colour(BlockColorx2);
 
 							MeshChunk->triangle(iVertex, iVertex+1, iVertex+2);
 							MeshChunk->triangle(iVertex+2, iVertex+3, iVertex);
@@ -525,12 +577,12 @@ void CubeWorld::createChunk (const int StartX, const int StartY, const int Start
 					    if (y > SY)
 						    Block1 = GetBlock(x,y-1,z);
 
-					    if (Block1 == 0 || Block1 == 5)
+					    if (g_BlockInfo[Block1].Transparent)
 						{
-							MeshChunk->position(x,   y, z);		MeshChunk->normal(0,-1,0); MeshChunk->textureCoord(0, V2); MeshChunk->colour(BlockLight2, BlockLight2, BlockLight2);
-							MeshChunk->position(x+1, y, z);		MeshChunk->normal(0,-1,0); MeshChunk->textureCoord(1, V2); MeshChunk->colour(BlockLight2, BlockLight2, BlockLight2);
-							MeshChunk->position(x+1, y, z+1);	MeshChunk->normal(0,-1,0); MeshChunk->textureCoord(1, V1); MeshChunk->colour(BlockLight2, BlockLight2, BlockLight2);
-							MeshChunk->position(x,   y, z+1);	MeshChunk->normal(0,-1,0); MeshChunk->textureCoord(0, V1); MeshChunk->colour(BlockLight2, BlockLight2, BlockLight2);
+							MeshChunk->position(x,   y, z);		MeshChunk->normal(0,-1,0); MeshChunk->textureCoord(0, V2); MeshChunk->colour(BlockColory1);
+							MeshChunk->position(x+1, y, z);		MeshChunk->normal(0,-1,0); MeshChunk->textureCoord(1, V2); MeshChunk->colour(BlockColory1);
+							MeshChunk->position(x+1, y, z+1);	MeshChunk->normal(0,-1,0); MeshChunk->textureCoord(1, V1); MeshChunk->colour(BlockColory1);
+							MeshChunk->position(x,   y, z+1);	MeshChunk->normal(0,-1,0); MeshChunk->textureCoord(0, V1); MeshChunk->colour(BlockColory1);
 
 							MeshChunk->triangle(iVertex, iVertex+1, iVertex+2);
 							MeshChunk->triangle(iVertex+2, iVertex+3, iVertex);
@@ -544,12 +596,12 @@ void CubeWorld::createChunk (const int StartX, const int StartY, const int Start
 					    if (y < SY + MaxSize - 1)
 						    Block1 = GetBlock(x,y+1,z);
 
-					    if (Block1 == 0 || Block1 == 5)
+					    if (g_BlockInfo[Block1].Transparent)
 						{
-							MeshChunk->position(x,   y+1, z+1);		MeshChunk->normal(0,1,0); MeshChunk->textureCoord(0, V2); MeshChunk->colour(BlockLight2, BlockLight2, BlockLight2);
-							MeshChunk->position(x+1, y+1, z+1);		MeshChunk->normal(0,1,0); MeshChunk->textureCoord(1, V2); MeshChunk->colour(BlockLight2, BlockLight2, BlockLight2);
-							MeshChunk->position(x+1, y+1, z);		MeshChunk->normal(0,1,0); MeshChunk->textureCoord(1, V1); MeshChunk->colour(BlockLight2, BlockLight2, BlockLight2);
-							MeshChunk->position(x,   y+1, z);		MeshChunk->normal(0,1,0); MeshChunk->textureCoord(0, V1); MeshChunk->colour(BlockLight2, BlockLight2, BlockLight2);
+							MeshChunk->position(x,   y+1, z+1);		MeshChunk->normal(0,1,0); MeshChunk->textureCoord(0, V2); MeshChunk->colour(BlockColory2);
+							MeshChunk->position(x+1, y+1, z+1);		MeshChunk->normal(0,1,0); MeshChunk->textureCoord(1, V2); MeshChunk->colour(BlockColory2);
+							MeshChunk->position(x+1, y+1, z);		MeshChunk->normal(0,1,0); MeshChunk->textureCoord(1, V1); MeshChunk->colour(BlockColory2);
+							MeshChunk->position(x,   y+1, z);		MeshChunk->normal(0,1,0); MeshChunk->textureCoord(0, V1); MeshChunk->colour(BlockColory2);
 
 							MeshChunk->triangle(iVertex, iVertex+1, iVertex+2);
 							MeshChunk->triangle(iVertex+2, iVertex+3, iVertex);
@@ -562,12 +614,12 @@ void CubeWorld::createChunk (const int StartX, const int StartY, const int Start
 					    if (z > SZ)
 						    Block1 = GetBlock(x,y,z-1);
 
-					    if (Block1 == 0 || Block1 == 5)
+					    if (g_BlockInfo[Block1].Transparent)
 						{
-							MeshChunk->position(x,   y+1, z);		MeshChunk->normal(0,0,-1); MeshChunk->textureCoord(0, V2); MeshChunk->colour(BlockLight1, BlockLight1, BlockLight1);
-							MeshChunk->position(x+1, y+1, z);		MeshChunk->normal(0,0,-1); MeshChunk->textureCoord(1, V2); MeshChunk->colour(BlockLight1, BlockLight1, BlockLight1);
-							MeshChunk->position(x+1, y,   z);		MeshChunk->normal(0,0,-1); MeshChunk->textureCoord(1, V1); MeshChunk->colour(BlockLight1, BlockLight1, BlockLight1);
-							MeshChunk->position(x,   y,   z);		MeshChunk->normal(0,0,-1); MeshChunk->textureCoord(0, V1); MeshChunk->colour(BlockLight1, BlockLight1, BlockLight1);
+							MeshChunk->position(x,   y+1, z);		MeshChunk->normal(0,0,-1); MeshChunk->textureCoord(0, V2); MeshChunk->colour(BlockColorz);
+							MeshChunk->position(x+1, y+1, z);		MeshChunk->normal(0,0,-1); MeshChunk->textureCoord(1, V2); MeshChunk->colour(BlockColorz);
+							MeshChunk->position(x+1, y,   z);		MeshChunk->normal(0,0,-1); MeshChunk->textureCoord(1, V1); MeshChunk->colour(BlockColorz);
+							MeshChunk->position(x,   y,   z);		MeshChunk->normal(0,0,-1); MeshChunk->textureCoord(0, V1); MeshChunk->colour(BlockColorz);
 
 							MeshChunk->triangle(iVertex, iVertex+1, iVertex+2);
 							MeshChunk->triangle(iVertex+2, iVertex+3, iVertex);
@@ -581,12 +633,12 @@ void CubeWorld::createChunk (const int StartX, const int StartY, const int Start
 					    if (z < SZ + MaxSize - 1)
 						    Block1 = GetBlock(x,y,z+1);
 
-					    if (Block1 == 0 || Block1 == 5)
+					    if (g_BlockInfo[Block1].Transparent)
 						{
-							MeshChunk->position(x,   y,   z+1);		MeshChunk->normal(0,0,1); MeshChunk->textureCoord(0, V2); MeshChunk->colour(BlockLight1, BlockLight1, BlockLight1);
-							MeshChunk->position(x+1, y,   z+1);		MeshChunk->normal(0,0,1); MeshChunk->textureCoord(1, V2); MeshChunk->colour(BlockLight1, BlockLight1, BlockLight1);
-							MeshChunk->position(x+1, y+1, z+1);		MeshChunk->normal(0,0,1); MeshChunk->textureCoord(1, V1); MeshChunk->colour(BlockLight1, BlockLight1, BlockLight1);
-							MeshChunk->position(x,   y+1, z+1);		MeshChunk->normal(0,0,1); MeshChunk->textureCoord(0, V1); MeshChunk->colour(BlockLight1, BlockLight1, BlockLight1);
+							MeshChunk->position(x,   y,   z+1);		MeshChunk->normal(0,0,1); MeshChunk->textureCoord(0, V2); MeshChunk->colour(BlockColorz);
+							MeshChunk->position(x+1, y,   z+1);		MeshChunk->normal(0,0,1); MeshChunk->textureCoord(1, V2); MeshChunk->colour(BlockColorz);
+							MeshChunk->position(x+1, y+1, z+1);		MeshChunk->normal(0,0,1); MeshChunk->textureCoord(1, V1); MeshChunk->colour(BlockColorz);
+							MeshChunk->position(x,   y+1, z+1);		MeshChunk->normal(0,0,1); MeshChunk->textureCoord(0, V1); MeshChunk->colour(BlockColorz);
 
 							MeshChunk->triangle(iVertex, iVertex+1, iVertex+2);
 							MeshChunk->triangle(iVertex+2, iVertex+3, iVertex);
@@ -777,8 +829,8 @@ void CubeWorld::createWorldChunks (void)
 	Ogre::TextureUnitState* tex = pass->createTextureUnitState();
 	tex->setColourOperationEx(Ogre::LBX_MODULATE, Ogre::LBS_MANUAL, Ogre::LBS_CURRENT, Ogre::ColourValue(0, 0.5, 0));
 
-	//Ogre::ManualObject* MeshChunk = new Ogre::ManualObject("MeshManChunk");
-	//MeshChunk->begin("BoxColor");
+	Ogre::ManualObject* MeshChunk = new Ogre::ManualObject("MeshMatChunk");
+	MeshChunk->begin("TerrainImage");
 
 	for (int z = 0; z < WORLD_SIZE; z += CHUNK_SIZE)
 	{
@@ -786,7 +838,7 @@ void CubeWorld::createWorldChunks (void)
 		{
 			for (int x = 0; x < WORLD_SIZE; x += CHUNK_SIZE)
 			{
-				createChunk(x,y,z); /* WFaces or not */
+				createChunk(MeshChunk, x,y,z); /* WFaces or not */
 				//createChunkWater(x, y, z);
 			}
 		}
@@ -836,6 +888,50 @@ void CubeWorld::createWaterTexture (const TCHAR* pName)
 	tex->setColourOperationEx(Ogre::LBX_SOURCE1, Ogre::LBS_MANUAL, Ogre::LBS_CURRENT, Ogre::ColourValue(0, 0, 1));
 	tex->setAlphaOperation(Ogre::LBX_SOURCE1, Ogre::LBS_MANUAL, Ogre::LBS_CURRENT, 0.5);
 }
+
+void CubeWorld::createSkyTexture(const TCHAR* pName)
+{
+	Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create(pName, "General", true);
+	Ogre::Technique* tech = mat->getTechnique(0);
+	Ogre::Pass* pass = tech->getPass(0);
+	Ogre::TextureUnitState* tex = pass->createTextureUnitState();
+
+	pass->setLightingEnabled(false);
+	pass->setDepthCheckEnabled(false);
+	pass->setDepthWriteEnabled(false);
+	pass->setFog(true);
+
+	tex->setTextureName("clouds.jpg");
+	tex->setScrollAnimation(0.05, 0);
+
+	// This is a new texture state to simulate lightning
+	tex = pass->createTextureUnitState();
+	tex->setColourOperationEx(Ogre::LBX_MODULATE, Ogre::LBS_MANUAL, Ogre::LBS_CURRENT, Ogre::ColourValue(1, 1, 1));
+
+	m_SkyMaterial = mat;
+	updateSkyTextureLight();
+}
+
+void CubeWorld::updateSkyTextureLight (void)
+{
+	if (m_SkyMaterial.isNull())
+		return;
+
+	Ogre::Technique* tech = m_SkyMaterial->getTechnique(0);
+	if (tech == NULL) //nullptr)
+		return;
+	Ogre::Pass* pass = tech->getPass(0);
+	if (pass == NULL) //nullptr)
+		return;
+
+	Ogre::TextureUnitState* tex = pass->getTextureUnitState(1);
+	if (tex == NULL) //nullptr)
+		return;
+
+	// Update the texture unit's color operation with the world light level
+	tex->setColourOperationEx(Ogre::LBX_MODULATE, Ogre::LBS_MANUAL, Ogre::LBS_CURRENT, m_LightColor);
+}
+
 
 
 

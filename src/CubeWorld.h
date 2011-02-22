@@ -64,7 +64,6 @@ public:
 		return m_BlockLight[x + y * WORLD_SIZE + z * WORLD_SIZE2];
 	}
 
-
 private:
 	Ogre::ManualObject* createCubeMesh(Ogre::String name, Ogre::String matName);
 	static const int WORLD_SIZE = 256;	// We'll change these later for various test worlds
@@ -95,7 +94,7 @@ private:
 	// Displays the world using our original "naive" method
 	void displaySimpleWorld (void);
 
-	void createChunk (const int StartX, const int StartY, const int StartZ);
+	void createChunk (Ogre::ManualObject* MeshChunk, const int StartX, const int StartY, const int StartZ);
 	void createChunkWFaces (const int StartX, const int StartY, const int StartZ);
 	void createChunkWater (const int StartX, const int StartY, const int StartZ);
 	void createWorldChunks (void);
@@ -103,11 +102,20 @@ private:
 	void createSolidTexture(const TCHAR* pName);
 	void createTexture(const TCHAR* pName, const TCHAR* pImageFilename);
 	void createWaterTexture(const TCHAR* pName);
+	void createSkyTexture(const TCHAR* pName);
+	void updateSkyTextureLight(void);
+
 
 	blockinfo_t GetBlockMaterial (block_t block)
 	{
 		return g_BlockInfo[block];
 	}
+
+	Ogre::MaterialPtr m_SkyMaterial;
+	Ogre::ColourValue m_LightColor;
+	Ogre::ColourValue m_AmbientColor;
+	Ogre::ColourValue m_FogColor;
+	float m_LightAngle;
 
 protected:
     virtual void createScene(void);
