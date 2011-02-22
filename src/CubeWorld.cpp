@@ -918,15 +918,25 @@ void CubeWorld::updateSkyTextureLight (void)
 		return;
 
 	Ogre::Technique* tech = m_SkyMaterial->getTechnique(0);
-	if (tech == NULL) //nullptr)
-		return;
+#if defined(__linux__) || defined(__APPLE__)
+	if (tech == NULL) return;
+#else
+	if (tech == nullptr) return;
+
+#endif
 	Ogre::Pass* pass = tech->getPass(0);
-	if (pass == NULL) //nullptr)
-		return;
+#if defined(__linux__) || defined(__APPLE__)
+	if (pass == NULL) return;
+#else
+	if (pass == nulptr) return;
+#endif
 
 	Ogre::TextureUnitState* tex = pass->getTextureUnitState(1);
-	if (tex == NULL) //nullptr)
-		return;
+#if defined(__linux__) || defined(__APPLE__)
+	if (tex == NULL) return;
+#else
+	if (tex == nullptr) return;
+#endif
 
 	// Update the texture unit's color operation with the world light level
 	tex->setColourOperationEx(Ogre::LBX_MODULATE, Ogre::LBS_MANUAL, Ogre::LBS_CURRENT, m_LightColor);
