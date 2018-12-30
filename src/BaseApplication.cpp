@@ -80,7 +80,7 @@ void BaseApplication::createCamera(void)
     // Create the camera
     mCamera = mSceneMgr->createCamera("PlayerCam");
 
-    mCameraNode = mCamera->getParentSceneNode();
+    mCameraNode = mSceneMgr->getRootSceneNode();
 
     // Position it at 500 in Z direction
     mCameraNode->setPosition(Ogre::Vector3(-31,140,202));
