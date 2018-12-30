@@ -22,8 +22,8 @@ BaseApplication::BaseApplication(void)
     mCamera(0),
     mSceneMgr(0),
     mWindow(0),
-    mResourcesCfg(Ogre::StringUtil::BLANK),
-    mPluginsCfg(Ogre::StringUtil::BLANK),
+    mResourcesCfg(Ogre::BLANKSTRING),
+    mPluginsCfg(Ogre::BLANKSTRING),
     mTrayMgr(0),
     mCameraMan(0),
     mDetailsPanel(0),
@@ -42,7 +42,7 @@ BaseApplication::~BaseApplication(void)
     if (mCameraMan) delete mCameraMan;
 
     //Remove ourself as a Window listener
-    Ogre::WindowEventUtilities::removeWindowEventListener(mWindow, this);
+    OgreBites::WindowEventUtilities::removeWindowEventListener(mWindow, this);
     windowClosed(mWindow);
     delete mRoot;
 }
@@ -53,7 +53,7 @@ bool BaseApplication::configure(void)
     // Show the configuration dialog and initialise the system
     // You can skip this and use root.restoreConfig() to load configuration
     // settings if you were sure there are valid ones saved in ogre.cfg
-    if(mRoot->showConfigDialog())
+    if(mRoot->showConfigDialog(NULL))
     {
         // If returned true, user clicked OK so initialise
         // Here we choose to let the system create a default rendering window by passing 'true'
@@ -70,7 +70,9 @@ bool BaseApplication::configure(void)
 void BaseApplication::chooseSceneManager(void)
 {
     // Get the SceneManager, in this case a generic one
-    mSceneMgr = mRoot->createSceneManager(Ogre::ST_GENERIC);
+    // Deprecated
+    //mSceneMgr = mRoot->createSceneManager(Ogre::ST_GENERIC);
+    mSceneMgr = mRoot->createSceneManager();
 }
 //-------------------------------------------------------------------------------------
 void BaseApplication::createCamera(void)
@@ -78,13 +80,15 @@ void BaseApplication::createCamera(void)
     // Create the camera
     mCamera = mSceneMgr->createCamera("PlayerCam");
 
+    mCameraNode = mCamera->getParentSceneNode();
+
     // Position it at 500 in Z direction
-    mCamera->setPosition(Ogre::Vector3(-31,140,202));
+    mCameraNode->setPosition(Ogre::Vector3(-31,140,202));
     // Look back along -Z
-    mCamera->lookAt(Ogre::Vector3(0.084, -0.6, 0.05));
+    mCameraNode->lookAt(Ogre::Vector3(0.084, -0.6, 0.05), Ogre::Node::TS_PARENT);
     mCamera->setNearClipDistance(5);
 
-    mCameraMan = new OgreBites::SdkCameraMan(mCamera);   // create a default camera controller
+    mCameraMan = new OgreBites::CameraMan(mCameraNode);   // create a default camera controller
 }
 //-------------------------------------------------------------------------------------
 void BaseApplication::createFrameListener(void)
@@ -112,7 +116,7 @@ void BaseApplication::createFrameListener(void)
     //Register as a Window listener
     Ogre::WindowEventUtilities::addWindowEventListener(mWindow, this);
 
-    mTrayMgr = new OgreBites::SdkTrayManager("InterfaceName", mWindow, mMouse, this);
+    mTrayMgr = new OgreBites::TrayManager("InterfaceName", mWindow, this);
     mTrayMgr->showFrameStats(OgreBites::TL_BOTTOMLEFT);
     mTrayMgr->showLogo(OgreBites::TL_BOTTOMRIGHT);
     mTrayMgr->hideCursor();
@@ -249,11 +253,13 @@ bool BaseApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
     mKeyboard->capture();
     mMouse->capture();
 
-    mTrayMgr->frameRenderingQueued(evt);
+    // TODO FIXME this thing
+    //mTrayMgr->frameRenderingQueued(evt);
 
     if (!mTrayMgr->isDialogVisible())
     {
-        mCameraMan->frameRenderingQueued(evt);   // if dialog isn't up, then update the camera
+        // this one too FIXME TODO
+        //mCameraMan->frameRenderingQueued(evt);   // if dialog isn't up, then update the camera
         if (mDetailsPanel->isVisible())   // if details panel is visible, then update its contents
         {
             mDetailsPanel->setParamValue(0, Ogre::StringConverter::toString(mCamera->getDerivedPosition().x));
@@ -360,34 +366,34 @@ bool BaseApplication::keyPressed( const OIS::KeyEvent &arg )
         mShutDown = true;
     }
 
-    mCameraMan->injectKeyDown(arg);
+    //mCameraMan->keyPressed(arg);
     return true;
 }
 
 bool BaseApplication::keyReleased( const OIS::KeyEvent &arg )
 {
-    mCameraMan->injectKeyUp(arg);
+    //mCameraMan->keyReleased(arg);
     return true;
 }
 
 bool BaseApplication::mouseMoved( const OIS::MouseEvent &arg )
 {
-    if (mTrayMgr->injectMouseMove(arg)) return true;
-    mCameraMan->injectMouseMove(arg);
+    //if (mTrayMgr->injectMouseMove(arg)) return true;
+    //mCameraMan->mouseMoved(arg);
     return true;
 }
 
 bool BaseApplication::mousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
 {
-    if (mTrayMgr->injectMouseDown(arg, id)) return true;
-    mCameraMan->injectMouseDown(arg, id);
+    //if (mTrayMgr->mousePressed(arg, id)) return true;
+    //mCameraMan->mousePressed(arg, id);
     return true;
 }
 
 bool BaseApplication::mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
 {
-    if (mTrayMgr->injectMouseUp(arg, id)) return true;
-    mCameraMan->injectMouseUp(arg, id);
+    //if (mTrayMgr->mouseReleased(arg, id)) return true;
+    //mCameraMan->mouseReleased(arg, id);
     return true;
 }
 

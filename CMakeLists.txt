@@ -55,9 +55,10 @@ endif (APPLE)
 
 if(${CMAKE_SYSTEM} MATCHES "Linux")
     # Include necessary submodules
-    set(OGRE_SOURCE_DIR "/usr/share/OGRE")
+    set(OGRE_SOURCE_DIR "/home/dashie/hack/ogre/ogre-1.11.5")
     set(CMAKE_MODULE_PATH
-	"${OGRE_SOURCE_DIR}/cmake/modules"
+        "${OGRE_SOURCE_DIR}/cmake/"
+        "${OGRE_SOURCE_DIR}/CMake/Utils/"
 	)
     set(OGRE_SAMPLES_INCLUDEPATH "${OGRE_SOURCE_DIR}/Samples/Common/include" )
 endif (${CMAKE_SYSTEM} MATCHES "Linux")
@@ -66,7 +67,7 @@ include(CMakeDependentOption)
 include(CheckCXXCompilerFlag)
 include(MacroLogFeature)
 include(OgreConfigTargets)
-include(PreprocessorUtils)
+#include(PreprocessorUtils)
 set(OGRE_TEMPLATES_DIR "${OGRE_SOURCE_DIR}/CMake/Templates")
 
 
@@ -159,16 +160,15 @@ endif (APPLE)
 
 
 find_package(OGRE REQUIRED)
+find_package(PkgConfig)
 
-if(NOT "${OGRE_VERSION_NAME}" STREQUAL "Ghadamon")
-  message(SEND_ERROR "You need Ogre 1.9 Ghadamon to build this.")
-endif()
+pkg_check_modules(OIS REQUIRED OIS)
+add_definitions(${OIS_CFLAGS})
+link_directories(${OIS_LIBRARY_DIRS})
 
-find_package(OIS REQUIRED)
-
-if(NOT OIS_FOUND)
-	message(SEND_ERROR "Failed to find OIS.")
-endif()
+pkg_check_modules(ZZ REQUIRED zziplib)
+add_definitions(${ZZ_CFLAGS})
+link_directories(${ZZ_LIBRARY_DIRS})
 
 # Find Boost
 if (NOT OGRE_BUILD_PLATFORM_IPHONE)
@@ -244,7 +244,7 @@ add_executable(${OGRE_PROJECT_NAME} WIN32 ${HDRS} ${SRCS})
 
 set_target_properties(${OGRE_PROJECT_NAME} PROPERTIES DEBUG_POSTFIX _d)
 
-target_link_libraries(${OGRE_PROJECT_NAME} ${OGRE_LIBRARIES} ${OIS_LIBRARIES} ${LIBNOISE_LIBRARIES})
+target_link_libraries(${OGRE_PROJECT_NAME} ${OGRE_LIBRARIES} ${OIS_LIBRARIES} ${LIBNOISE_LIBRARIES} ${ZZ_LIBRARIES})
 
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dist/bin)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dist/media)
