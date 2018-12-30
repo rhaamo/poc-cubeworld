@@ -38,7 +38,7 @@ endif ()
 
 set(OGRE_PROJECT_NAME "CubeWorld")
 
-set(CMAKE_INSTALL_PREFIX "/Users/rhaamo/cubeworld/build/bin")
+set(CMAKE_INSTALL_PREFIX "/home/dashie/dev/poc-cubeworld/build/bin")
 
 project(${OGRE_PROJECT_NAME})
 
@@ -55,11 +55,9 @@ endif (APPLE)
 
 if(${CMAKE_SYSTEM} MATCHES "Linux")
     # Include necessary submodules
-    set(OGRE_SOURCE_DIR "/usr/lib/OGRE")
+    set(OGRE_SOURCE_DIR "/usr/share/OGRE")
     set(CMAKE_MODULE_PATH
-	"${OGRE_SOURCE_DIR}/cmake"
-	"${OGRE_SOURCE_DIR}/cmake/Utils"
-	"${OGRE_SOURCE_DIR}/cmake/Packages"
+	"${OGRE_SOURCE_DIR}/cmake/modules"
 	)
     set(OGRE_SAMPLES_INCLUDEPATH "${OGRE_SOURCE_DIR}/Samples/Common/include" )
 endif (${CMAKE_SYSTEM} MATCHES "Linux")
@@ -162,8 +160,8 @@ endif (APPLE)
 
 find_package(OGRE REQUIRED)
 
-if(NOT "${OGRE_VERSION_NAME}" STREQUAL "Cthugha")
-  message(SEND_ERROR "You need Ogre 1.7 Cthugha to build this.")
+if(NOT "${OGRE_VERSION_NAME}" STREQUAL "Ghadamon")
+  message(SEND_ERROR "You need Ogre 1.9 Ghadamon to build this.")
 endif()
 
 find_package(OIS REQUIRED)
