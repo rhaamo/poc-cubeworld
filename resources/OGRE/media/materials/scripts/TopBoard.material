@@ -1,0 +1,27 @@
+material TopBoard
+{
+   receive_shadows   off
+
+   technique
+   {
+      pass
+      {
+         scene_blend      one one_minus_src_alpha
+         cull_hardware   none
+
+         ambient         0 0 0
+         diffuse         1 0 0 0.7
+         emissive      1 0 0
+
+         texture_unit
+         {
+            colour_op_ex      blend_texture_alpha src_diffuse src_texture
+            alpha_op_ex         modulate src_texture src_current
+            texture            round7.png alpha
+            rotate_anim         0.2
+            tex_address_mode   border
+            tex_border_colour   0 0 0 0
+         }
+      }
+   }
+}

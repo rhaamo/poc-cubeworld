@@ -1,12 +1,15 @@
+#include <Bites/OgreWindowEventUtilities.h>
 #include "BaseApp.h"
 
 BaseApp::BaseApp()
-    : ApplicationContext("CubeWorldApp")
+    : ApplicationContext("CubeWorldApp"),
+      mShutDown(false)
 {
 }
 
 BaseApp::~BaseApp(void) {
     if (trayMgr) delete trayMgr;
+    if (camMan) delete camMan;
 
     //Remove ourself as a Window listener
     windowClosed(getRenderWindow());
@@ -24,6 +27,18 @@ void BaseApp::setup()
     root = getRoot();
     scnMgr = root->createSceneManager();
 
+    ConfigFile cf;
+    cf.load("resources.cfg");
+    ConfigFile::SectionIterator secIt = cf.getSectionIterator();
+    while (secIt.hasMoreElements()) {
+        ConfigFile::SettingsMultiMap* settings = secIt.getNext();
+        ConfigFile::SettingsMultiMap::iterator it;
+
+        for (it = settings->begin(); it != settings->end(); ++it) {
+            Ogre::ResourceGroupManager::getSingleton().addResourceLocation(it->second, it->first);
+        }
+    }
+
     // register our scene with the RTSS
     RTShader::ShaderGenerator* shadergen = RTShader::ShaderGenerator::getSingletonPtr();
     shadergen->addSceneManager(scnMgr);
@@ -40,6 +55,9 @@ void BaseApp::setup()
     cam->setNearClipDistance(5);
     camNode->attachObject(cam);
 
+    // Create a camera manager
+    camMan = new CameraMan(camNode);
+
     // - Create viewports
     // Create one viewport, entire window
     Viewport *vp = getRenderWindow()->addViewport(cam);
@@ -54,6 +72,9 @@ void BaseApp::setup()
 
     // - CubeWorld create scene
     createScene(); // reside in CubeWorld.cpp, full scene init
+
+    // - OIS thingy
+    createFrameListener();
 
     // - Tray manager thing
 
@@ -87,20 +108,82 @@ void BaseApp::setup()
     //getRoot()->addFrameListener(this);
 }
 
+void BaseApp::createFrameListener(void) {
+    Ogre::LogManager::getSingletonPtr()->logMessage("*** Initializing OIS ***");
+    OIS::ParamList pl;
+    size_t windowHnd = 0;
+    std::ostringstream windowHndStr;
 
-bool BaseApp::keyPressed(const KeyboardEvent& evt)
+    getRenderWindow()->getCustomAttribute("WINDOW", &windowHnd);
+    windowHndStr << windowHnd;
+    pl.insert(std::make_pair(std::string("WINDOW"), windowHndStr.str()));
+
+    mInputManager = OIS::InputManager::createInputSystem( pl );
+
+    mKeyboard = static_cast<OIS::Keyboard*>(mInputManager->createInputObject( OIS::OISKeyboard, true ));
+    mMouse = static_cast<OIS::Mouse*>(mInputManager->createInputObject( OIS::OISMouse, true ));
+
+    mMouse->setEventCallback(this);
+    mKeyboard->setEventCallback(this);
+
+    //Set initial mouse clipping size
+    windowResized(getRenderWindow());
+
+    //Register as a Window listener
+    //WindowEventUtilities::addWindowEventListener(getRenderWindow(), this);
+
+    mRoot->addFrameListener(this);
+}
+
+bool BaseApp::frameRenderingQueued(const FrameEvent& evt) {
+    if(getRenderWindow()->isClosed())
+        return false;
+
+    if(mShutDown)
+        return false;
+
+    //Need to capture/update each device
+    mKeyboard->capture();
+    mMouse->capture();
+
+    // TODO FIXME this thing
+    //mTrayMgr->frameRenderingQueued(evt);
+    trayMgr->frameRendered(evt);
+
+    if (!trayMgr->isDialogVisible())
+    {
+        // this one too FIXME TODO
+        //mCameraMan->frameRenderingQueued(evt);   // if dialog isn't up, then update the camera
+        camMan->frameRendered(evt);
+        if (detailsPanel->isVisible())   // if details panel is visible, then update its contents
+        {
+            detailsPanel->setParamValue(0, Ogre::StringConverter::toString(cam->getDerivedPosition().x));
+            detailsPanel->setParamValue(1, Ogre::StringConverter::toString(cam->getDerivedPosition().y));
+            detailsPanel->setParamValue(2, Ogre::StringConverter::toString(cam->getDerivedPosition().z));
+            detailsPanel->setParamValue(4, Ogre::StringConverter::toString(cam->getDerivedOrientation().w));
+            detailsPanel->setParamValue(5, Ogre::StringConverter::toString(cam->getDerivedOrientation().x));
+            detailsPanel->setParamValue(6, Ogre::StringConverter::toString(cam->getDerivedOrientation().y));
+            detailsPanel->setParamValue(7, Ogre::StringConverter::toString(cam->getDerivedOrientation().z));
+        }
+    }
+
+    return true;
+}
+
+bool BaseApp::keyPressed(const OIS::KeyEvent &arg)
 {
 
     LogManager::getSingletonPtr()->logMessage("pwessed a key");
 
-    switch (evt.keysym.sym) {
-        case SDLK_ESCAPE:
-            getRoot()->queueEndRendering();
+    switch (arg.key) {
+        case OIS::KC_ESCAPE:
+            //getRoot()->queueEndRendering();
+            mShutDown = true;
             break;
-        case 'f':
+        case OIS::KC_F:
             trayMgr->toggleAdvancedFrameStats();
             break;
-        case 'g':
+        case OIS::KC_G:
             if (detailsPanel->getTrayLocation() == TL_NONE) {
                 trayMgr->moveWidgetToTray(detailsPanel, TL_TOPRIGHT, 0);
                 detailsPanel->show();
@@ -109,7 +192,7 @@ bool BaseApp::keyPressed(const KeyboardEvent& evt)
                 detailsPanel->hide();
             }
             break;
-        case 't': {
+        case OIS::KC_T: {
             String newVal;
             TextureFilterOptions tfo;
             unsigned int aniso;
@@ -141,7 +224,7 @@ bool BaseApp::keyPressed(const KeyboardEvent& evt)
             detailsPanel->setParamValue(9, newVal);
             break;
         }
-        case 'r': {
+        case OIS::KC_R: {
             String newValPol;
             PolygonMode pm;
             switch (cam->getPolygonMode()) {
@@ -162,26 +245,69 @@ bool BaseApp::keyPressed(const KeyboardEvent& evt)
             detailsPanel->setParamValue(10, newValPol);
             break;
         }
-        case SDLK_F5:
+        case OIS::KC_F5:
             TextureManager::getSingleton().reloadAll();
             break;
-        case 'n':
+        case OIS::KC_N:
             //getRenderWindow()->writeContentsToTimestampedFile("screenshot", ".jpg");
             getRenderWindow()->writeContentsToTimestampedFile("screenshot", ".png");
     }
 
+    //camMan->keyPressed(arg);
     return true;
 }
 
-// lol mouse don't work
-bool BaseApp::mouseMoved(const MouseMotionEvent& evt) {
-    trayMgr->mouseMoved(evt);
+bool BaseApp::keyReleased( const OIS::KeyEvent &arg )
+{
+    //camMan->keyReleased(arg);
     return true;
 }
 
-bool BaseApp::mousePressed(const MouseButtonEvent& evt) {
-    trayMgr->mousePressed(evt);
+bool BaseApp::mouseMoved( const OIS::MouseEvent &arg )
+{
+    //if (trayMgr->mouseMoved(arg)) return true;
+    //camMan->mouseMoved(arg);
     return true;
 }
 
-//! [fullsource]
+bool BaseApp::mousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
+{
+    //if (trayMgr->mousePressed(arg)) return true;
+    //camMan->mousePressed(arg);
+    return true;
+}
+
+bool BaseApp::mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
+{
+    ///if (trayMgr->mouseReleased(arg)) return true;
+    //camMan->mouseReleased(arg);
+    return true;
+}
+
+//Adjust mouse clipping area
+void BaseApp::windowResized(RenderWindow* rw)
+{
+    unsigned int width, height, depth;
+    int left, top;
+    rw->getMetrics(width, height, depth, left, top);
+
+    const OIS::MouseState &ms = mMouse->getMouseState();
+    ms.width = width;
+    ms.height = height;
+}
+
+
+//Unattach OIS before window shutdown (very important under Linux)
+void BaseApp::windowClosed(RenderWindow* rw) {
+    //Only close for window that created OIS (the main window in these demos)
+    if( rw == getRenderWindow() )     {
+        if( mInputManager )         {
+            mInputManager->destroyInputObject( mMouse );
+            mInputManager->destroyInputObject( mKeyboard );
+
+            OIS::InputManager::destroyInputSystem(mInputManager);
+            mInputManager = 0;
+        }
+    }
+}
+
