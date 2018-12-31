@@ -42,7 +42,7 @@ This source file is part of the
 
 #include <iostream>
 
-class BaseApplication : public Ogre::FrameListener, public Ogre::WindowEventListener, public OIS::KeyListener, public OIS::MouseListener, OgreBites::TrayListener
+class BaseApplication : public OgreBites::ApplicationContext, public Ogre::WindowEventListener, public OIS::KeyListener, public OIS::MouseListener, OgreBites::TrayListener
 {
 public:
     BaseApplication(void);
@@ -51,7 +51,7 @@ public:
     virtual void go(void);
 
 protected:
-    virtual bool setup();
+    virtual void setup();
     virtual bool configure(void);
     virtual void chooseSceneManager(void);
     virtual void createCamera(void);
