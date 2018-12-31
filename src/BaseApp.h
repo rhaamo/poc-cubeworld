@@ -12,20 +12,12 @@
 #include <OgreConfigFile.h>
 #include <OgreCameraMan.h>
 
-#include <OISEvents.h>
-#include <OISInputManager.h>
-#include <OISKeyboard.h>
-#include <OISMouse.h>
-
-
 using namespace Ogre;
 using namespace OgreBites;
 
 class BaseApp
         : public ApplicationContext,
           public InputListener,
-          public OIS::KeyListener,
-          public OIS::MouseListener,
           public OgreBites::TrayListener {
 public:
     BaseApp();
@@ -35,23 +27,15 @@ public:
     void setup();
 
     // OIS::KeyListener
-    virtual bool keyPressed( const OIS::KeyEvent &arg );
-    virtual bool keyReleased( const OIS::KeyEvent &arg );
+    virtual bool keyPressed( const OgreBites::KeyboardEvent& evt );
+    virtual bool keyReleased( const OgreBites::KeyboardEvent& evt );
     // OIS::MouseListener
-    virtual bool mouseMoved( const OIS::MouseEvent &arg );
-    virtual bool mousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID id );
-    virtual bool mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id );
-
-    //Unattach OIS before window shutdown (very important under Linux)
-    virtual void windowClosed(RenderWindow *rw);
-
-    //Adjust mouse clipping area
-    virtual void windowResized(RenderWindow *rw);
+    virtual bool mouseMoved( const OgreBites::MouseMotionEvent &evt );
+    virtual bool mousePressed( const OgreBites::MouseButtonEvent &evt );
+    virtual bool mouseReleased( const OgreBites::MouseButtonEvent &evt );
 
     // Ogre::FrameListener
     virtual bool frameRenderingQueued(const FrameEvent &evt);
-
-    virtual void createFrameListener(void);
 
 
 protected:
@@ -64,12 +48,6 @@ protected:
     Root *root;
     SceneManager *scnMgr;
     bool mShutDown;
-
-    //OIS Input devices
-    OIS::InputManager *mInputManager;
-    OIS::Mouse *mMouse;
-    OIS::Keyboard *mKeyboard;
-
 };
 
 #endif // #ifndef __BaseApp_h_

@@ -73,9 +73,6 @@ void BaseApp::setup()
     // - CubeWorld create scene
     createScene(); // reside in CubeWorld.cpp, full scene init
 
-    // - OIS thingy
-    createFrameListener();
-
     // - Tray manager thing
 
     trayMgr = new TrayManager("InterfaceName", getRenderWindow());
@@ -108,43 +105,12 @@ void BaseApp::setup()
     //getRoot()->addFrameListener(this);
 }
 
-void BaseApp::createFrameListener(void) {
-    Ogre::LogManager::getSingletonPtr()->logMessage("*** Initializing OIS ***");
-    OIS::ParamList pl;
-    size_t windowHnd = 0;
-    std::ostringstream windowHndStr;
-
-    getRenderWindow()->getCustomAttribute("WINDOW", &windowHnd);
-    windowHndStr << windowHnd;
-    pl.insert(std::make_pair(std::string("WINDOW"), windowHndStr.str()));
-
-    mInputManager = OIS::InputManager::createInputSystem( pl );
-
-    mKeyboard = static_cast<OIS::Keyboard*>(mInputManager->createInputObject( OIS::OISKeyboard, true ));
-    mMouse = static_cast<OIS::Mouse*>(mInputManager->createInputObject( OIS::OISMouse, true ));
-
-    mMouse->setEventCallback(this);
-    mKeyboard->setEventCallback(this);
-
-    //Set initial mouse clipping size
-    windowResized(getRenderWindow());
-
-    //Register as a Window listener
-    //WindowEventUtilities::addWindowEventListener(getRenderWindow(), this);
-
-    mRoot->addFrameListener(this);
-}
-
 bool BaseApp::frameRenderingQueued(const FrameEvent& evt) {
     if(getRenderWindow()->isClosed())
         return false;
 
     if(mShutDown)
         return false;
-
-    //Need to capture/update each device
-    mKeyboard->capture();
-    mMouse->capture();
 
     // TODO FIXME this thing
     //mTrayMgr->frameRenderingQueued(evt);
@@ -170,20 +136,20 @@ bool BaseApp::frameRenderingQueued(const FrameEvent& evt) {
     return true;
 }
 
-bool BaseApp::keyPressed(const OIS::KeyEvent &arg)
+bool BaseApp::keyPressed(const OgreBites::KeyboardEvent& evt)
 {
 
     LogManager::getSingletonPtr()->logMessage("pwessed a key");
 
-    switch (arg.key) {
-        case OIS::KC_ESCAPE:
+    switch (evt.keysym.sym) {
+        case SDLK_ESCAPE:
             //getRoot()->queueEndRendering();
             mShutDown = true;
             break;
-        case OIS::KC_F:
+        case 'f':
             trayMgr->toggleAdvancedFrameStats();
             break;
-        case OIS::KC_G:
+        case 'g':
             if (detailsPanel->getTrayLocation() == TL_NONE) {
                 trayMgr->moveWidgetToTray(detailsPanel, TL_TOPRIGHT, 0);
                 detailsPanel->show();
@@ -192,7 +158,7 @@ bool BaseApp::keyPressed(const OIS::KeyEvent &arg)
                 detailsPanel->hide();
             }
             break;
-        case OIS::KC_T: {
+        case 't': {
             String newVal;
             TextureFilterOptions tfo;
             unsigned int aniso;
@@ -224,7 +190,7 @@ bool BaseApp::keyPressed(const OIS::KeyEvent &arg)
             detailsPanel->setParamValue(9, newVal);
             break;
         }
-        case OIS::KC_R: {
+        case 'r': {
             String newValPol;
             PolygonMode pm;
             switch (cam->getPolygonMode()) {
@@ -245,69 +211,41 @@ bool BaseApp::keyPressed(const OIS::KeyEvent &arg)
             detailsPanel->setParamValue(10, newValPol);
             break;
         }
-        case OIS::KC_F5:
+        case SDLK_F5:
             TextureManager::getSingleton().reloadAll();
             break;
-        case OIS::KC_N:
+        case 'n':
             //getRenderWindow()->writeContentsToTimestampedFile("screenshot", ".jpg");
             getRenderWindow()->writeContentsToTimestampedFile("screenshot", ".png");
     }
 
-    //camMan->keyPressed(arg);
+    camMan->keyPressed(evt);
     return true;
 }
 
-bool BaseApp::keyReleased( const OIS::KeyEvent &arg )
+bool BaseApp::keyReleased( const OgreBites::KeyboardEvent& evt )
 {
-    //camMan->keyReleased(arg);
+    camMan->keyReleased(evt);
     return true;
 }
 
-bool BaseApp::mouseMoved( const OIS::MouseEvent &arg )
+bool BaseApp::mouseMoved( const OgreBites::MouseMotionEvent &evt )
 {
-    //if (trayMgr->mouseMoved(arg)) return true;
-    //camMan->mouseMoved(arg);
+    if (trayMgr->mouseMoved(evt)) return true;
+    camMan->mouseMoved(evt);
     return true;
 }
 
-bool BaseApp::mousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
+bool BaseApp::mousePressed( const OgreBites::MouseButtonEvent &evt )
 {
-    //if (trayMgr->mousePressed(arg)) return true;
-    //camMan->mousePressed(arg);
+    if (trayMgr->mousePressed(evt)) return true;
+    camMan->mousePressed(evt);
     return true;
 }
 
-bool BaseApp::mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
+bool BaseApp::mouseReleased( const OgreBites::MouseButtonEvent &evt )
 {
-    ///if (trayMgr->mouseReleased(arg)) return true;
-    //camMan->mouseReleased(arg);
+    if (trayMgr->mouseReleased(evt)) return true;
+    camMan->mouseReleased(evt);
     return true;
 }
-
-//Adjust mouse clipping area
-void BaseApp::windowResized(RenderWindow* rw)
-{
-    unsigned int width, height, depth;
-    int left, top;
-    rw->getMetrics(width, height, depth, left, top);
-
-    const OIS::MouseState &ms = mMouse->getMouseState();
-    ms.width = width;
-    ms.height = height;
-}
-
-
-//Unattach OIS before window shutdown (very important under Linux)
-void BaseApp::windowClosed(RenderWindow* rw) {
-    //Only close for window that created OIS (the main window in these demos)
-    if( rw == getRenderWindow() )     {
-        if( mInputManager )         {
-            mInputManager->destroyInputObject( mMouse );
-            mInputManager->destroyInputObject( mKeyboard );
-
-            OIS::InputManager::destroyInputSystem(mInputManager);
-            mInputManager = 0;
-        }
-    }
-}
-

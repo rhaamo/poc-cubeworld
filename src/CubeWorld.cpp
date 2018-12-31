@@ -33,7 +33,7 @@ CubeWorld::~CubeWorld(void) {
 
 //-------------------------------------------------------------------------------------
 void CubeWorld::createScene(void) {
-    createTexture("TerrainImage", "minecraft/terrain.png");
+    createTexture("TerrainImage", "terrain.png");
     createWaterTexture("WaterTest");
     createWorldChunks();
 
