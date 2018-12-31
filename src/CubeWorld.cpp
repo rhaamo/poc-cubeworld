@@ -914,7 +914,7 @@ void CubeWorld::createSkyTexture(const TCHAR* pName)
 
 void CubeWorld::updateSkyTextureLight (void)
 {
-	if (m_SkyMaterial.isNull())
+	if (!m_SkyMaterial)
 		return;
 
 	Ogre::Technique* tech = m_SkyMaterial->getTechnique(0);
